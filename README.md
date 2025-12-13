@@ -1,55 +1,68 @@
-# todoing
-[2025 졸업프로젝트 투둥이]
+# 📝 투둥이 (TODOONGI) - 백엔드 서버
+
+> 작심삼일을 끝내는 **진짜 루틴 메이커**  
+> 반복되는 일상 속에서 작지만 꾸준한 성취를 돕는 스마트 투두앱
+
+---
+
+## 📌 1. 프로젝트 소개
+
+**투둥이(TODOONGI)**는 단순한 할 일 기록을 넘어  
+사용자가 반복적인 루틴을 쉽게 만들고 유지할 수 있도록 도와주는 **투두앱 서비스**입니다.
+
+-  반복 일정/루틴 관리 기능
+-  마감일 및 우선순위 설정
+-  AI/인증
+-  투둥이와의 대화로 목표 구체화 및
 
 
-## terraform 으로 인프라를 코드로 관리
+> 본 저장소는 **투둥이 백엔드 서버(Spring Boot)**로,  
+> 사용자 인증, 할 일 CRUD, 루틴 관리 등 핵심 기능을 REST API 형태로 제공합니다.
 
-### 명령어 모음집
-- terraform init
-- terraform plan
-- terraform apply
-- terraform destroy
+---
 
-- ssh 접속
-    - ssh -i todoing-key.pem ubuntu@3.38.113.231
+## 👥 2. 멤버 소개
 
-### ssh 들어간 후 명령어 모음집
+| 이름 | 주요 담당 |
+|------|------|------------|
+| 윤다영 | 챗봇 개발, 멤버 CRUD, DB 설계 |
+| 한혜수 | JWT 인증, 인증 개발, 투두 CRUD |
 
 
-- docker 현재 pw가 mask가 되어 있지 않은 문제 발생
+---
 
-      # === 배포(SSH 유지): ECR에서 pull 후 컨테이너 실행 ===
-      - name: Deploy to EC2 (SSH)
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.EC2_HOST_IP }}
-          username: ${{ secrets.EC2_NAME }}
-          key: ${{ secrets.EC2_KEY }}
-          port: 22
-          script: |
-            set -e
-            # ECR 로그인 (EC2에 AWS CLI 필요 / 인스턴스 롤 권장)
-            aws ecr get-login-password --region ${{ env.AWS_REGION }} \
-              | docker login --username AWS --password-stdin ${{ steps.login-ecr.outputs.registry }}
-            
-            docker stop hongik-todoing || true
-            docker rm hongik-todoing || true
-            
-            docker pull ${{ env.IMAGE_URI }}d
-            
-            docker run -d --name hongik-todoing -p 8080:8080 \
-              -e SPRING_PROFILES_ACTIVE=dev \
-              -e SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }} \
-              -e SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }} \
-              -e SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }} \
-              -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
-              -e JWT_ACCESS_EXPIRE=${{ secrets.JWT_ACCESS_EXPIRE }} \
-              -e JWT_REFRESH_EXPIRE=${{ secrets.JWT_REFRESH_EXPIRE }} \
-              -e KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }} \
-              -e KAKAO_REDIRECT_URI=${{ secrets.KAKAO_REDIRECT_URI }} \
-              -e OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} \
-              ${{ env.IMAGE_URI }}
-            
-            
-            
-수정중
+## 💻 3. 개발 환경
+
+| 항목 | 기술 스택 |
+|------|------------|
+| Language | Java 17 |
+| Framework | Spring Boot 3.4 |
+| ORM | Spring Data JPA |
+| Database | MySQL 8.2 |
+| 보안 | Spring Security + JWT |
+| 빌드 도구 | Gradle |
+| 테스트 | JUnit5, Jmeter|
+| 문서화 | Swagger 3.0 |
+
+---
+
+## 🌟 4. 주요 기능
+
+### 🔐 사용자 기능
+- 회원가입 / 로그인 (JWT 기반 인증)
+- 비밀번호 암호화 (BCrypt)
+- 사용자 정보 조회
+- 친구 조회
+
+### ✅ 투두 기능
+- 할 일 등록, 조회, 수정, 삭제 (CRUD)
+- 완료 여부 토글
+- 사용자별 데이터 분리
+- AI 인증
+
+### 🔁 채팅 기능
+- 챗봇과 대화
+- 투두 자동 생성 및 상태 초기화
+
+
+
