@@ -1,7 +1,7 @@
 package hongik.Todoing.domain.member.controller;
 
 import hongik.Todoing.domain.auth.util.PrincipalDetails;
-import hongik.Todoing.domain.member.domain.Member;
+import hongik.Todoing.domain.member.domain.User;
 import hongik.Todoing.domain.member.dto.response.GetProfileDTO;
 import hongik.Todoing.domain.member.dto.response.UpdateProfileDTO;
 import hongik.Todoing.domain.member.service.MemberService;
@@ -24,8 +24,8 @@ public class MemberController {
     @GetMapping("/me")
     public ApiResponse<GetProfileDTO> getMyProfile(
             @AuthenticationPrincipal PrincipalDetails principal) {
-        Member member = principal.getMember();
-        return ApiResponse.onSuccess(memberService.getProfile(member));
+        User user = principal.getUser();
+        return ApiResponse.onSuccess(memberService.getProfile(user));
     }
 
     // 내 프로필 변경
@@ -35,8 +35,8 @@ public class MemberController {
             @AuthenticationPrincipal PrincipalDetails principal,
             @RequestBody UpdateProfileDTO dto
             ) {
-        Member member = principal.getMember();
-        memberService.updateProfile(member, dto);
+        User user = principal.getUser();
+        memberService.updateProfile(user, dto);
         return ApiResponse.of(SuccessStatus._OK, null);
     }
 

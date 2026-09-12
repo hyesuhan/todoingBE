@@ -1,26 +1,25 @@
 package hongik.Todoing.domain.auth.util;
 
-import hongik.Todoing.domain.member.domain.Member;
+import hongik.Todoing.domain.member.domain.User;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.stream.Collectors;
 
 @Getter
 public class PrincipalDetails implements UserDetails {
 
-    private final Member member;
+    private final User user;
 
-    public PrincipalDetails(Member member) {
-        this.member = member;
+    public PrincipalDetails(User user) {
+        this.user = user;
     }
 
     public PrincipalDetails(String username, String password, String role) {
-        this.member = Member.builder()
+        this.user = User.builder()
                 .name(username)
                 .password(password)
                 .role(role)
@@ -30,19 +29,19 @@ public class PrincipalDetails implements UserDetails {
     // 해당 Member 권한 리턴
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return member.getRoleList().stream()
+        return user.getRoleList().stream()
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
     }
 
     @Override
     public String getPassword() {
-        return member.getPassword();
+        return user.getPassword();
     }
 
     @Override
     public String getUsername() {
-        return member.getEmail();
+        return user.getEmail();
     }
 
     @Override

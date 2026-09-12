@@ -1,8 +1,7 @@
 package hongik.Todoing.domain.verification.validator;
 
 import hongik.Todoing.Common.annotation.Validator;
-import hongik.Todoing.domain.member.adaptor.MemberAdaptor;
-import hongik.Todoing.domain.member.domain.Member;
+import hongik.Todoing.domain.member.domain.User;
 import hongik.Todoing.domain.order.adaptor.OrderAdaptor;
 import hongik.Todoing.domain.order.adaptor.PassAdaptor;
 import hongik.Todoing.domain.order.domain.pass.Pass;
@@ -10,13 +9,11 @@ import hongik.Todoing.domain.order.domain.pass.PassStatus;
 import hongik.Todoing.domain.order.validator.PassValidator;
 import hongik.Todoing.domain.todo.domain.Todo;
 import hongik.Todoing.domain.verification.Adaptor.VerificationAdaptor;
-import hongik.Todoing.domain.verification.domain.Verification;
 import hongik.Todoing.global.apiPayload.code.status.ErrorStatus;
 import hongik.Todoing.global.apiPayload.exception.GeneralException;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
-import java.util.Optional;
 
 @Validator
 @RequiredArgsConstructor
@@ -28,10 +25,10 @@ public class VerificationValidator {
     private final PassAdaptor passAdaptor;
 
     //인증 가능한 투두인지 검증
-    public void validVerification(Member member, Todo todo) {
+    public void validVerification(User user, Todo todo) {
 
         //투두의 유저와 인증하는 유저가 같은지 검증
-        if(!member.getId().equals(todo.getMemberId())){
+        if(!user.getId().equals(todo.getMemberId())){
             throw new GeneralException(ErrorStatus.UNAUTHORIZED);
         }
 
@@ -47,7 +44,7 @@ public class VerificationValidator {
 
         // 사용자의 이용권 검증
         // 유효한 Pass: 만료되지 않았고(현재는 필요 없음), 남은 인증 횟수가 1 이상
-        List<Pass> passes = passAdaptor.findByUserId(member.getId());
+        List<Pass> passes = passAdaptor.findByUserId(user.getId());
         if (passes == null || passes.isEmpty()) {
             throw new GeneralException(ErrorStatus.PASS_NOT_AVAILABLE);
         }

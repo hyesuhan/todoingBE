@@ -1,6 +1,6 @@
 package hongik.Todoing.domain.todoReply.domain;
 
-import hongik.Todoing.domain.member.domain.Member;
+import hongik.Todoing.domain.member.domain.User;
 import hongik.Todoing.domain.todo.domain.Todo;
 import hongik.Todoing.global.common.BaseEntity;
 import jakarta.persistence.*;
@@ -28,6 +28,6 @@ public class TodoReply extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private Member member;
+    private User user;
 
 }

@@ -1,12 +1,9 @@
 package hongik.Todoing.domain.todo.facade;
 
 
-import hongik.Todoing.domain.chat.dto.ChatSessionState;
 import hongik.Todoing.domain.label.domain.Label;
 import hongik.Todoing.domain.label.repository.LabelRepository;
-import hongik.Todoing.domain.member.domain.Member;
 import hongik.Todoing.domain.member.service.MemberService;
-import hongik.Todoing.domain.todo.dto.request.ChatTodoCreateRequestDTO;
 import hongik.Todoing.domain.todo.dto.request.TodoCreateRequestDTO;
 import hongik.Todoing.domain.todo.service.SelfTodoService;
 import hongik.Todoing.global.apiPayload.code.status.ErrorStatus;

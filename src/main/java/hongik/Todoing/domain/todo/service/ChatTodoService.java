@@ -1,11 +1,11 @@
 package hongik.Todoing.domain.todo.service;
 
 
-import hongik.Todoing.domain.chat.dto.ChatSessionState;
+import hongik.Todoing.domain.aiChat.dto.ChatSessionState;
 import hongik.Todoing.domain.label.domain.Label;
 import hongik.Todoing.domain.label.domain.LabelType;
 import hongik.Todoing.domain.label.repository.LabelRepository;
-import hongik.Todoing.domain.member.domain.Member;
+import hongik.Todoing.domain.member.domain.User;
 import hongik.Todoing.domain.todo.domain.Todo;
 import hongik.Todoing.domain.todo.dto.request.ChatTodoCreateRequestDTO;
 import hongik.Todoing.domain.todo.repository.TodoRepository;
@@ -26,7 +26,7 @@ public class ChatTodoService {
     private final LabelRepository labelRepository;
 
     @Transactional
-    public void createTodo(Member member, ChatTodoCreateRequestDTO requestDTO, ChatSessionState sessionState){
+    public void createTodo(User user, ChatTodoCreateRequestDTO requestDTO, ChatSessionState sessionState){
         try {
             Label label = labelRepository.findByLabelName(
                     LabelType.valueOf(sessionState.getCategory().toUpperCase())
@@ -35,7 +35,7 @@ public class ChatTodoService {
             for (ChatTodoCreateRequestDTO.SubQuest subQuest : requestDTO.getSubQuests()) {
                 System.out.println("SubQuest: task=" + subQuest.getTask() + ", date=" + subQuest.getDate());
                 Todo todo = Todo.builder()
-                        .memberId(member.getId())
+                        .memberId(user.getId())
                         .content(subQuest.getTask())
                         .todoDate(LocalDate.parse(subQuest.getDate()))
                         .labelId(label.getLabelId())

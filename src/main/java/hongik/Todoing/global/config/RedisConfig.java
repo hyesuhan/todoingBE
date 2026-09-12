@@ -1,6 +1,6 @@
 package hongik.Todoing.global.config;
 
-import hongik.Todoing.domain.chat.dto.ChatSessionState;
+import hongik.Todoing.domain.aiChat.dto.ChatSessionState;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

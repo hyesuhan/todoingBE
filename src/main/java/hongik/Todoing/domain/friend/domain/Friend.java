@@ -1,6 +1,6 @@
 package hongik.Todoing.domain.friend.domain;
 
-import hongik.Todoing.domain.member.domain.Member;
+import hongik.Todoing.domain.member.domain.User;
 import hongik.Todoing.global.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -25,19 +25,19 @@ public class Friend extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private Member member;
+    private User user;
 
     @ManyToOne
     @JoinColumn(name = "friend_id")
-    private Member friend;
+    private User friend;
 
     public void updateStatus(FriendStatus status) {
         this.status = status;
     }
 
-    public static Friend of(Member me, Member target) {
+    public static Friend of(User me, User target) {
         return Friend.builder()
-                .member(me)
+                .user(me)
                 .friend(target)
                 .status(FriendStatus.ACCEPTED) // 초기 상태 (원하는 값으로)
                 .build();

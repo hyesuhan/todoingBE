@@ -31,7 +31,7 @@ public class FriendController {
             @AuthenticationPrincipal PrincipalDetails principal,
             @RequestBody FriendRequestDTO request
             ) {
-        friendService.addFriend(principal.getMember(), request.friendEmail());
+        friendService.addFriend(principal.getUser(), request.friendEmail());
         return ApiResponse.onSuccess(null);
     }
 
@@ -41,7 +41,7 @@ public class FriendController {
     public ApiResponse<List<FriendResponseDTO>> getMyFriends(
             @AuthenticationPrincipal PrincipalDetails principal
     ) {
-        return ApiResponse.of(SuccessStatus._OK, friendService.getMyFriends(principal.getMember()));
+        return ApiResponse.of(SuccessStatus._OK, friendService.getMyFriends(principal.getUser()));
     }
 
     // 친구 삭제하기 - id로 삭제
@@ -51,7 +51,7 @@ public class FriendController {
             @AuthenticationPrincipal PrincipalDetails principal,
             @PathVariable Long friendId
     ) {
-        friendService.deleteFriend(principal.getMember(), friendId);
+        friendService.deleteFriend(principal.getUser(), friendId);
         return ApiResponse.onSuccess(null);
     }
 
@@ -62,7 +62,7 @@ public class FriendController {
             @AuthenticationPrincipal PrincipalDetails principal,
             @PathVariable Long friendId
     ) {
-        friendService.blockFriend(principal.getMember(), friendId);
+        friendService.blockFriend(principal.getUser(), friendId);
         return ApiResponse.onSuccess(null);
     }
 
@@ -73,7 +73,7 @@ public class FriendController {
             @AuthenticationPrincipal PrincipalDetails principal,
             @PathVariable Long friendId
     ) {
-        List<TodoResponseDTO> todoList = friendService.getFriendTodos(principal.getMember(), friendId);
+        List<TodoResponseDTO> todoList = friendService.getFriendTodos(principal.getUser(), friendId);
         return ApiResponse.onSuccess(todoList);
     }
 }
