@@ -33,16 +33,16 @@
 
 ## 💻 3. 개발 환경
 
-| 항목 | 기술 스택 |
-|------|------------|
-| Language | Java 17 |
-| Framework | Spring Boot 3.4 |
-| ORM | Spring Data JPA |
-| Database | MySQL 8.2 |
-| 보안 | Spring Security + JWT |
-| 빌드 도구 | Gradle |
-| 테스트 | JUnit5, Jmeter|
-| 문서화 | Swagger 3.0 |
+| 항목        | 기술 스택                                               |
+|-----------|-----------------------------------------------------|
+| Language  | Java 21 (17 -> 21)                                  |
+| Framework | Spring Boot 4.1 (3.4 -> 4.1, OTel 라이브러리)            |
+| ORM       | Spring Data JPA                                     |
+| Database  | PostgreSQL 17 (Mysql 8.2 -> PostgreSQL 17, JsonB활용) |
+| 보안        | Spring Security + JWT                               |
+| 빌드 도구     | Gradle                                              |
+| 테스트       | JUnit5, Jmeter, k6                                  |
+| 문서화       | Swagger 3.0                                         |
 
 ---
 
