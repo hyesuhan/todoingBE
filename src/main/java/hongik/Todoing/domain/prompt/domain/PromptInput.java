@@ -6,19 +6,16 @@ import hongik.Todoing.domain.prompt.exception.PromptException;
 import hongik.Todoing.global.apiPayload.code.status.ErrorStatus;
 import hongik.Todoing.global.common.BaseEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.Period;
 
 @Entity
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class PromptInput extends BaseEntity {
 
     @Id
@@ -37,6 +34,16 @@ public class PromptInput extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "label_id")
     private Label label;
+
+    public static PromptInput of(Level level, LocalDate startDate, LocalDate endDate, User user, Label label) {
+        PromptInput promptInput = new PromptInput();
+        promptInput.level = level;
+        promptInput.startDate = startDate;
+        promptInput.endDate = endDate;
+        promptInput.user = user;
+        promptInput.label = label;
+        return promptInput;
+    }
 
     public Period getPeriod() {
         if(startDate == null || endDate == null) {

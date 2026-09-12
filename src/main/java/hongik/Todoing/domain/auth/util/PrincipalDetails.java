@@ -18,14 +18,6 @@ public class PrincipalDetails implements UserDetails {
         this.user = user;
     }
 
-    public PrincipalDetails(String username, String password, String role) {
-        this.user = User.builder()
-                .nickname(username)
-                .password(password)
-                .role(role)
-                .build();
-    }
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return user.getRoleList().stream()

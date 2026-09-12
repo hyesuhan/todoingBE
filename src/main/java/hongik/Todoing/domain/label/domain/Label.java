@@ -1,20 +1,13 @@
 package hongik.Todoing.domain.label.domain;
 
-import hongik.Todoing.domain.prompt.domain.PromptInput;
-import hongik.Todoing.domain.todo.domain.Todo;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-
-import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 @Entity
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class Label {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,4 +16,9 @@ public class Label {
     @Enumerated(EnumType.STRING)
     private LabelType labelName;
 
+    public static Label of(LabelType labelName) {
+        Label label = new Label();
+        label.labelName = labelName;
+        return label;
+    }
 }

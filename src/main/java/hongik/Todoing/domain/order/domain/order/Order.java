@@ -5,16 +5,15 @@ import hongik.Todoing.domain.order.exception.orderException.OrderNotValidExcepti
 import hongik.Todoing.domain.order.validator.OrderValidator;
 import hongik.Todoing.global.common.BaseEntity;
 import jakarta.persistence.*;
-import lombok.Builder;
+import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Getter
-@NoArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "orders")
 public class Order extends BaseEntity {
 
@@ -61,23 +60,6 @@ public class Order extends BaseEntity {
 
     // 환불 시 시각
     private LocalDateTime cancelledAt;
-
-    /** --- 생성 관련 메서드 --- **/
-    @Builder
-    public Order (
-            Long userId,
-            String tid,
-            ProductCode itemCode,
-            Integer quantity,
-            Integer totalAmount,
-            OrderStatus orderStatus ) {
-        this.userId = userId;
-        this.tid = tid;
-        this.itemCode = itemCode;
-        this.quantity = quantity;
-        this.totalAmount = totalAmount;
-        this.orderStatus = orderStatus;
-    }
 
     /** --- 카카오 페이 관련 결제를 생성합니다. --- **/
     // ready 주문을 생성합니다.

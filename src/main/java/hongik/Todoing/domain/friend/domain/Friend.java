@@ -3,16 +3,13 @@ package hongik.Todoing.domain.friend.domain;
 import hongik.Todoing.domain.member.domain.User;
 import hongik.Todoing.global.common.BaseEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 @Entity
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "friend")
 public class Friend extends BaseEntity {
 
@@ -36,10 +33,10 @@ public class Friend extends BaseEntity {
     }
 
     public static Friend of(User me, User target) {
-        return Friend.builder()
-                .user(me)
-                .friend(target)
-                .status(FriendStatus.ACCEPTED) // 초기 상태 (원하는 값으로)
-                .build();
+        Friend friend = new Friend();
+        friend.user = me;
+        friend.friend = target;
+        friend.status = FriendStatus.ACCEPTED; // 초기 상태 (원하는 값으로)
+        return friend;
     }
 }

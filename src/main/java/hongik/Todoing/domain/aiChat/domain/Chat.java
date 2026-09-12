@@ -4,16 +4,13 @@ package hongik.Todoing.domain.aiChat.domain;
 import hongik.Todoing.domain.member.domain.User;
 import hongik.Todoing.global.common.BaseEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 @Entity
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class Chat extends BaseEntity {
 
     @Id
@@ -28,5 +25,10 @@ public class Chat extends BaseEntity {
     @JoinColumn(name = "sender_id")
     private User sender;
 
-
+    public static Chat write(User sender, String message) {
+        Chat chat = new Chat();
+        chat.sender = sender;
+        chat.message = message;
+        return chat;
+    }
 }

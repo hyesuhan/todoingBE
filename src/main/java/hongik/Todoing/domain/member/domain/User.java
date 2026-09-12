@@ -4,20 +4,15 @@ import hongik.Todoing.domain.friend.domain.Friend;
 import hongik.Todoing.global.apiPayload.code.status.ErrorStatus;
 import hongik.Todoing.global.apiPayload.exception.GeneralException;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Entity
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "`user`")
 public class User {
     @Id
@@ -35,18 +30,24 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    @Builder.Default
-    private Status status = Status.PENDING;
+    private Status status;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "role", nullable = false)
+    @Column(nullable = false)
     private Role role;
 
+    public static User create(String nickname, String email, String password, Role role) {
+        User user = new User();
+        user.nickname = nickname;
+        user.email = email;
+        user.password = password;
+        user.role = role;
+        user.status = Status.PENDING;
+        return user;
+    }
+
     public List<String> getRoleList() {
-        if (!this.role.toString().isEmpty()) {
-            return Arrays.asList(this.role.toString().split(","));
-        }
-        return new ArrayList<>();
+        return List.of("ROLE_" + role.name());
     }
 
     public void updateNickname(String nickname) {

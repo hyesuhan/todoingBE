@@ -1,6 +1,7 @@
 package hongik.Todoing.domain.auth.converter;
 
 import hongik.Todoing.domain.auth.dto.KakaoLoginResponseDto;
+import hongik.Todoing.domain.member.domain.Role;
 import hongik.Todoing.domain.member.domain.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -10,12 +11,7 @@ public class AuthConverter {
 
         String passwordToUse = password != null ? passwordEncoder.encode(password) :
                 passwordEncoder.encode("defaultPassword");
-        return User.builder()
-                .email(email)
-                .role("ROLE_USER")
-                .password(passwordToUse)
-                .nickname(nickname)
-                .build();
+        return User.create(nickname, email, passwordToUse, Role.USER);
     }
 
     public static KakaoLoginResponseDto JoinResponse(User user, String accessToken) {

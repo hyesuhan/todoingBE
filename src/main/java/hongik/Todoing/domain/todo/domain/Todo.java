@@ -4,16 +4,16 @@ import hongik.Todoing.domain.todoReply.domain.TodoReply;
 import hongik.Todoing.global.common.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.List;
 
 @Entity
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "todo")
 public class Todo extends BaseEntity {
     @Id
@@ -42,6 +42,17 @@ public class Todo extends BaseEntity {
 
     @OneToMany(mappedBy = "todo", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TodoReply> replies;
+
+    public static Todo create(Long memberId, String content, LocalDate todoDate, Long labelId, boolean isAiNeeded) {
+        Todo todo = new Todo();
+        todo.memberId = memberId;
+        todo.content = content;
+        todo.todoDate = todoDate;
+        todo.labelId = labelId;
+        todo.isAiNeeded = isAiNeeded;
+        todo.isCompleted = false;
+        return todo;
+    }
 
     public void updateComplete(boolean isCompleted) {
         this.isCompleted = isCompleted;
