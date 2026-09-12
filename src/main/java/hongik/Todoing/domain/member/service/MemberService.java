@@ -1,6 +1,5 @@
 package hongik.Todoing.domain.member.service;
 
-import hongik.Todoing.domain.member.converter.MemberConverter;
 import hongik.Todoing.domain.member.domain.User;
 import hongik.Todoing.domain.member.dto.response.GetProfileDTO;
 import hongik.Todoing.domain.member.dto.response.UpdateProfileDTO;
@@ -17,15 +16,15 @@ public class MemberService {
 
     private final PasswordEncoder passwordEncoder;
     private final MemberRepository memberRepository;
-    public GetProfileDTO getProfile(User user) {
-        return MemberConverter.toGetProfileDTO(user.getEmail(), user.getName());
-    }
 
+    public GetProfileDTO getProfile(User user) {
+        return GetProfileDTO.from(user);
+    }
 
     @Transactional
     public void updateProfile(User user, UpdateProfileDTO request) {
-        if(request.name() != null)
-            user.updateName(request.name());
+        if(request.nickname() != null)
+            user.updateNickname(request.nickname());
 
         if(request.password() != null) {
             String encoded = passwordEncoder.encode(request.password());

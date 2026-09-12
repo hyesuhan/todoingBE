@@ -20,13 +20,12 @@ public class PrincipalDetails implements UserDetails {
 
     public PrincipalDetails(String username, String password, String role) {
         this.user = User.builder()
-                .name(username)
+                .nickname(username)
                 .password(password)
                 .role(role)
                 .build();
     }
 
-    // 해당 Member 권한 리턴
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return user.getRoleList().stream()

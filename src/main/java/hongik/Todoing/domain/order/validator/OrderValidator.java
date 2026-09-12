@@ -1,7 +1,6 @@
 package hongik.Todoing.domain.order.validator;
 
 import hongik.Todoing.Common.annotation.Validator;
-import hongik.Todoing.domain.member.validator.MemberValidator;
 import hongik.Todoing.domain.order.adaptor.OrderAdaptor;
 import hongik.Todoing.domain.order.domain.order.Order;
 import hongik.Todoing.domain.order.domain.order.OrderStatus;
@@ -13,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 public class OrderValidator {
 
     private final OrderAdaptor orderAdaptor;
-    private final MemberValidator memberValidator;
 
     // 여기에 주문 관련 검증 메서드를 추가할 수 있습니다.
 

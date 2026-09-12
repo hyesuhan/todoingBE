@@ -14,7 +14,7 @@ public class FriendConverter {
         User target = friend.getFriend();
         return new FriendResponseDTO(
                 target.getId(),
-                target.getName(),
+                target.getNickname(),
                 friend.getStatus());
     }
 

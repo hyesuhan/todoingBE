@@ -4,64 +4,63 @@ import hongik.Todoing.domain.friend.domain.Friend;
 import hongik.Todoing.global.apiPayload.code.status.ErrorStatus;
 import hongik.Todoing.global.apiPayload.exception.GeneralException;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Entity
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Table(name = "`user`")
-@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "nickname", nullable = false, unique = true)
+    @Column(nullable = false, unique = true)
     private String nickname;
 
-    @Column(name = "password", nullable = false)
+    @Column(nullable = false)
     private String password;
 
-    @Column(name = "email", nullable = false, unique = true)
+    @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(name = "status", nullable = false)
-    private Status status;
-
     @Enumerated(EnumType.STRING)
-    @Column(name = "role")
-    private Role role;
+    @Column(nullable = false)
+    @Builder.Default
+    private Status status = Status.PENDING;
 
-    public static User createUser(String nickname, String password, String email) {
-        User user = new User();
-        user.nickname = nickname;
-        user.password = password;
-        user.email = email;
-        user.status = Status.PENDING;
-        return user;
-    }
-
-    public void emailVerified() {
-        this.status = Status.ACTIVE;
-    }
-
-    public void withdraw() {
-        this.status = Status.WITHDRAWN;
-
-    }
+    private String role; // ROLE_USER, ROLE_ADMIN
 
     public List<String> getRoleList() {
+        if (!this.role.isEmpty()) {
+            return Arrays.asList(this.role.split(","));
+        }
         return new ArrayList<>();
     }
 
-    public void updateName(String nickname) {
+    public void updateNickname(String nickname) {
         this.nickname = nickname;
     }
 
     public void updatePassword(String password) {
         this.password = password;
+    }
+
+    public void verifyEmail() {
+        this.status = Status.ACTIVE;
+    }
+
+    public void withdraw() {
+        this.status = Status.WITHDRAWN;
     }
 
     public Friend createFriendship(User target) {

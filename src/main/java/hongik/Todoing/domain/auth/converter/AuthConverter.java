@@ -6,7 +6,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 public class AuthConverter {
 
-    public static User toMember(String email, String name, String password, PasswordEncoder passwordEncoder) {
+    public static User toMember(String email, String nickname, String password, PasswordEncoder passwordEncoder) {
 
         String passwordToUse = password != null ? passwordEncoder.encode(password) :
                 passwordEncoder.encode("defaultPassword");
@@ -14,14 +14,14 @@ public class AuthConverter {
                 .email(email)
                 .role("ROLE_USER")
                 .password(passwordToUse)
-                .name(name)
+                .nickname(nickname)
                 .build();
     }
 
     public static KakaoLoginResponseDto JoinResponse(User user, String accessToken) {
         return KakaoLoginResponseDto.builder()
                 .email(user.getEmail())
-                .name(user.getName())
+                .name(user.getNickname())
                 .accessToken(accessToken)
                 .build();
 

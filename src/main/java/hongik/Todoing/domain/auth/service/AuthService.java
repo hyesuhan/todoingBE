@@ -81,7 +81,7 @@ public class AuthService {
 
         // Member 생성
         User user = User.builder()
-                .name(request.getName())
+                .nickname(request.getName())
                 .email(request.getEmail())
                 .password(encodedPassword)
                 .role("ROLE_USER")
