@@ -1,10 +1,14 @@
 package hongik.Todoing.global.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import hongik.Todoing.domain.jwt.JwtAuthenticationFilter;
 import hongik.Todoing.domain.jwt.JwtAuthorizationFilter;
 import hongik.Todoing.domain.jwt.JwtUtil;
 import hongik.Todoing.domain.member.repository.MemberRepository;
+import hongik.Todoing.global.apiPayload.ApiResponse;
+import hongik.Todoing.global.apiPayload.code.status.ErrorStatus;
 import hongik.Todoing.global.util.RedisUtil;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,6 +22,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import java.io.IOException;
+
 @Configuration
 @EnableWebSecurity
 @AllArgsConstructor
@@ -27,14 +33,21 @@ public class SecurityConfig {
     private final JwtUtil jwtUtil;
     private final RedisUtil redisUtil;
     private final MemberRepository memberRepository;
-    private final String[] allowedUrls = {"/login",
-            "/reissue", "/swagger-ui/**", "/swagger-resources/**", "/v3/api-docs/**", "/auth/login/kakao/**","/chat",
+
+    private final String[] allowedUrls = {
+            "/login",
+            "/api/users/login",
+            "/api/users/login/kakao",
+            "/api/users/signup",
+            "/api/users/reissue",
+            "/swagger-ui/**", "/swagger-resources/**", "/v3/api-docs/**",
+            "/chat",
             "/api/verification/**"
     };
 
     @Bean
     public BCryptPasswordEncoder encodePassword() {
-        return new BCryptPasswordEncoder();
+        return new BCryptPasswordEncoder(12);
     }
 
     @Bean
@@ -68,15 +81,24 @@ public class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-        // 경로별 인가
+        // 경로별 인가 — allowedUrls에 없으면 기본적으로 인증 필요 (permitAll이었던 catch-all을 authenticated로)
         http.
                 authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
                                 .requestMatchers(allowedUrls).permitAll()
-                                .requestMatchers("/user/**").authenticated()
-                                .requestMatchers("/admin/**").hasRole("ADMIN")
-                                .anyRequest().permitAll()
+                                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                                .anyRequest().authenticated()
                 );
+
+        // 인증/인가 실패 시 JSON 401/403 응답 (기본값은 로그인 페이지 리다이렉트 또는 빈 응답)
+        http
+                .exceptionHandling(exceptionHandling -> exceptionHandling
+                        .authenticationEntryPoint((request, response, authException) ->
+                                writeErrorResponse(response, ErrorStatus.UNAUTHORIZED))
+                        .accessDeniedHandler((request, response, accessDeniedException) ->
+                                writeErrorResponse(response, ErrorStatus.FORBIDDEN))
+                );
+
         // ✅ JWT 인증 필터 (로그인)
         JwtAuthenticationFilter loginFilter = new JwtAuthenticationFilter(
                 authenticationManager(authenticationConfiguration), jwtUtil);
@@ -91,6 +113,15 @@ public class SecurityConfig {
                 .addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
+    }
+
+    private void writeErrorResponse(HttpServletResponse response, ErrorStatus errorStatus) throws IOException {
+        response.setStatus(errorStatus.getHttpStatus().value());
+        response.setContentType("application/json;charset=UTF-8");
+        new ObjectMapper().writeValue(
+                response.getWriter(),
+                ApiResponse.onFailure(errorStatus.getCode(), errorStatus.getMessage(), null)
+        );
     }
 
 }

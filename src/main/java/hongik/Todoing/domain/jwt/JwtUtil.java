@@ -6,12 +6,8 @@ import hongik.Todoing.domain.jwt.dto.JwtDTO;
 import hongik.Todoing.global.apiPayload.code.status.ErrorStatus;
 import hongik.Todoing.global.apiPayload.exception.GeneralException;
 import hongik.Todoing.global.util.RedisUtil;
-import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 
-import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.UnsupportedJwtException;
-import io.jsonwebtoken.security.SecurityException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.core.GrantedAuthority;
 
@@ -33,6 +29,8 @@ import java.util.stream.Collectors;
 @Component
 public class JwtUtil {
 
+    private static final String TOKEN_TYPE_ACCESS = "access";
+    private static final String TOKEN_TYPE_REFRESH = "refresh";
 
     private final SecretKey secretKey;
     private final Long access;
@@ -52,7 +50,6 @@ public class JwtUtil {
         this.principalDetailService = principalDetailService;
     }
 
-    // JWT 토큰 입력으로 받아 토큰의 페이로드에서 사용자 이름 추출
     public String getUsername(String token) throws SignatureException {
         return Jwts.parser()
                 .verifyWith(secretKey)
@@ -71,6 +68,15 @@ public class JwtUtil {
                 .get("roles", String.class);
     }
 
+    public String getTokenType(String token) {
+        return Jwts.parser()
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .get("type", String.class);
+    }
+
     public long getExpirationTime(String token) throws SignatureException {
         return Jwts.parser()
                 .verifyWith(secretKey)
@@ -81,34 +87,35 @@ public class JwtUtil {
                 .getTime();
     }
 
-    public String tokenProvider(PrincipalDetails principalDetails, Instant expiration) {
-        Instant issuedAt = Instant.now();
-        String authorities = principalDetails.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(","));
-
+    private String issueToken(String subject, String roles, String type, Instant expiration) {
         return Jwts.builder()
                 .header()
                 .add("typ", "JWT")
                 .and()
-                .subject(principalDetails.getUsername())
-                .claim("roles", authorities)
-                .issuedAt(Date.from(issuedAt))
+                .subject(subject)
+                .claim("roles", roles)
+                .claim("type", type)
+                .issuedAt(Date.from(Instant.now()))
                 .expiration(Date.from(expiration))
                 .signWith(secretKey)
                 .compact();
     }
 
+    private static String authoritiesOf(PrincipalDetails principalDetails) {
+        return principalDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
+    }
+
     public String createJwtAccessToken(PrincipalDetails principalDetails) {
         Instant expiration = Instant.now().plusMillis(access);
-        return tokenProvider(principalDetails, expiration);
+        return issueToken(principalDetails.getUsername(), authoritiesOf(principalDetails), TOKEN_TYPE_ACCESS, expiration);
     }
 
     public String createJwtRefreshToken(PrincipalDetails principalDetails) {
         Instant expiration = Instant.now().plusMillis(refreshTokenExpiration);
-        String refreshToken = tokenProvider(principalDetails, expiration);
+        String refreshToken = issueToken(principalDetails.getUsername(), authoritiesOf(principalDetails), TOKEN_TYPE_REFRESH, expiration);
 
-        // redisUtil이 null이 아니고, Redis 연결이 되어있을 때만 저장
         try {
             if (redisUtil != null) {
                 redisUtil.save(
@@ -125,7 +132,6 @@ public class JwtUtil {
         return refreshToken;
     }
 
-    // HTTP 요ㅓㅇ 시 Authorization header에서 JWT token 검색
     public String resolveAccessToken(HttpServletRequest request) {
         String authorizationHeader = request.getHeader("Authorization");
 
@@ -138,39 +144,11 @@ public class JwtUtil {
         return authorizationHeader.split(" ")[1];
     }
 
-    // token validation test
-    public void validationToken(String token) {
-        try {
-            // Jwt 만료 시간 검증 시 클라이언트와 서버 시간 차이 고려
-            long second = 3 * 60;
-
-            boolean isExpired = Jwts
-                    .parser()
-                    .clockSkewSeconds(second)
-                    .verifyWith(secretKey)
-                    .build()
-                    .parseSignedClaims(token)
-                    .getPayload()
-                    .getExpiration()
-                    .before(new Date());
-
-            log.info("Authorization with Token");
-
-            if(isExpired) {
-                log.info("[*] Token is Expired");
-            }
-        } catch (SecurityException | MalformedJwtException e) {
-            log.info("Token is Invalid");
-        } catch (ExpiredJwtException e) {
-            log.info("Token is Expired");
-        } catch (UnsupportedJwtException e) {
-            log.info("Token is Unsupported");
-        } catch (IllegalArgumentException e) {
-            log.info("Token is Illegal");
-        }
-    }
-
     public boolean validateRefreshToken(String refreshToken) throws SignatureException {
+        if (!TOKEN_TYPE_REFRESH.equals(getTokenType(refreshToken))) {
+            throw new GeneralException(ErrorStatus.INVALID_TOKEN);
+        }
+
         String username = getUsername(refreshToken);
 
         if(!redisUtil.hasKey(username)) {
@@ -190,15 +168,7 @@ public class JwtUtil {
 
     public String createAccessToken(String email, String role) {
         Instant expiration = Instant.now().plusMillis(access);
-
-        return Jwts.builder()
-                .header().add("typ", "JWT").and()
-                .subject(email)
-                .claim("roles", role)
-                .issuedAt(Date.from(Instant.now()))
-                .expiration(Date.from(expiration))
-                .signWith(secretKey)
-                .compact();
+        return issueToken(email, role, TOKEN_TYPE_ACCESS, expiration);
     }
 
 }
