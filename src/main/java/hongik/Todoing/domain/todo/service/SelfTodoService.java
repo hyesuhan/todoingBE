@@ -2,11 +2,10 @@ package hongik.Todoing.domain.todo.service;
 
 import hongik.Todoing.domain.label.domain.Label;
 import hongik.Todoing.domain.label.repository.LabelRepository;
-import hongik.Todoing.domain.member.domain.Member;
+import hongik.Todoing.domain.member.domain.User;
 import hongik.Todoing.domain.member.repository.MemberRepository;
 import hongik.Todoing.domain.todo.converter.TodoConverter;
 import hongik.Todoing.domain.todo.domain.Todo;
-import hongik.Todoing.domain.todo.dto.request.TodoCreateRequestDTO;
 import hongik.Todoing.domain.todo.dto.request.TodoUpdateRequestDTO;
 import hongik.Todoing.domain.todo.dto.response.TodoResponseDTO;
 import hongik.Todoing.domain.todo.repository.TodoRepository;
@@ -44,8 +43,8 @@ public class SelfTodoService {
     }
 
     public List<TodoResponseDTO> getTodosByDate(Long memberId, LocalDate date) {
-        Member member = memberRepository.findById(memberId).orElseThrow();
-        List<Todo> todos = todoRepository.findByMemberIdAndTodoDate(member.getId(), date);
+        User user = memberRepository.findById(memberId).orElseThrow();
+        List<Todo> todos = todoRepository.findByMemberIdAndTodoDate(user.getId(), date);
         return todoConverter.toTodoDtoList(todos);
     }
 
@@ -54,10 +53,10 @@ public class SelfTodoService {
         Todo todo = todoRepository.findByTodoId(todoId)
                 .orElseThrow(() -> new GeneralException(ErrorStatus.TODO_NOT_FOUND));
 
-        Member member = memberRepository.findById(memberId).orElseThrow();
-        Member member1 = memberRepository.findById(todo.getMemberId()).orElseThrow();
+        User user = memberRepository.findById(memberId).orElseThrow();
+        User user1 = memberRepository.findById(todo.getMemberId()).orElseThrow();
 
-        if(!member1.getEmail().equals(member.getEmail())) {
+        if(!user1.getEmail().equals(user.getEmail())) {
             throw new GeneralException(ErrorStatus.MEMBER_NOT_FOUND);
         }
 
@@ -69,10 +68,10 @@ public class SelfTodoService {
         Todo todo = todoRepository.findByTodoId(todoId)
                 .orElseThrow(() -> new GeneralException(ErrorStatus.TODO_NOT_FOUND));
 
-        Member member1 = memberRepository.findById(todo.getMemberId()).orElseThrow();
-        Member member = memberRepository.findById(memberId).orElseThrow();
+        User user1 = memberRepository.findById(todo.getMemberId()).orElseThrow();
+        User user = memberRepository.findById(memberId).orElseThrow();
 
-        if(!member1.getEmail().equals(member.getEmail())) {
+        if(!user1.getEmail().equals(user.getEmail())) {
             throw new GeneralException(ErrorStatus.MEMBER_NOT_FOUND);
         }
 
@@ -85,10 +84,10 @@ public class SelfTodoService {
         Todo todo = todoRepository.findByTodoId(todoId)
                 .orElseThrow(() -> new GeneralException(ErrorStatus.TODO_NOT_FOUND));
 
-        Member member1 = memberRepository.findById(todo.getMemberId()).orElseThrow();
-        Member member = memberRepository.findById(memberId).orElseThrow();
+        User user1 = memberRepository.findById(todo.getMemberId()).orElseThrow();
+        User user = memberRepository.findById(memberId).orElseThrow();
 
-        if(!member1.getEmail().equals(member.getEmail())) {
+        if(!user1.getEmail().equals(user.getEmail())) {
             throw new GeneralException(ErrorStatus.MEMBER_NOT_FOUND);
         }
 

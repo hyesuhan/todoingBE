@@ -3,7 +3,7 @@ package hongik.Todoing.domain.verification.service;
 import com.google.cloud.vision.v1.EntityAnnotation;
 import hongik.Todoing.domain.label.domain.LabelType;
 import hongik.Todoing.domain.label.repository.LabelRepository;
-import hongik.Todoing.domain.member.domain.Member;
+import hongik.Todoing.domain.member.domain.User;
 import hongik.Todoing.domain.order.adaptor.PassAdaptor;
 import hongik.Todoing.domain.order.domain.pass.Pass;
 import hongik.Todoing.domain.order.validator.PassValidator;
@@ -23,11 +23,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Function;
 
 @Service
@@ -49,10 +47,10 @@ public class VerificationService {
     // 인증 요청 처리
     // 1.사진 인증을 합니다.
     @Transactional
-    public VerificationResponse verifyTodoImage(Member member, Long todoId, MultipartFile image) {
+    public VerificationResponse verifyTodoImage(User user, Long todoId, MultipartFile image) {
 
         return processVerification(
-                member,
+                user,
                 todoId,
                 VerificationType.PHOTO,     // 기존 enum에 있다면 그대로
                 true,                       // PASS 사용할지 여부 (AI 인증이면 true)
@@ -81,10 +79,10 @@ public class VerificationService {
     // 음성 -> 텍스트 변환을 외부에서
     // 이를 script로 받음
     @Transactional
-    public VerificationResponse verifyTodoVoice(Member member, Long todoId, String transcript) {
+    public VerificationResponse verifyTodoVoice(User user, Long todoId, String transcript) {
 
         return processVerification(
-                member,
+                user,
                 todoId,
                 VerificationType.AUDIO,
                 true,       // AI 인증 → PASS 사용
@@ -108,10 +106,10 @@ public class VerificationService {
 
     // 3. 위치 인증 대신 일단은 텍스트 인증으로 하겠슴.
     @Transactional
-    public VerificationResponse verifyTodoText(Member member, Long todoId, String userText) {
+    public VerificationResponse verifyTodoText(User user, Long todoId, String userText) {
 
         return processVerification(
-                member,
+                user,
                 todoId,
                 VerificationType.TEXT,
                 true,       // 이것도 AI 인증으로 취급 (유사도 계산)
@@ -134,7 +132,7 @@ public class VerificationService {
 
     // 공통 처리 메서드
     private VerificationResponse processVerification(
-            Member member,
+            User user,
             Long todoId,
             VerificationType type,
             boolean usePass,
@@ -145,7 +143,7 @@ public class VerificationService {
                 .orElseThrow(() -> new GeneralException(ErrorStatus.TODO_NOT_FOUND));
 
         // 2) 인증 가능한 투두인지 검증
-        verificationValidator.validVerification(member, todo);
+        verificationValidator.validVerification(user, todo);
 
         // 3) 실제 인증 로직 수행
         VerificationResult result = verificationLogic.apply(todo);
@@ -164,16 +162,16 @@ public class VerificationService {
 
         // 5) PASS 차감 + 사용량 집계 (성공했을 때만)
         if (usePass && success) {
-            Pass pass = passAdaptor.findByUserId(member.getId())
+            Pass pass = passAdaptor.findByUserId(user.getId())
                     .stream()
                     .filter(p -> p.remainingCount() > 0)
                     .min((p1, p2) -> p1.getCreatedAt().compareTo(p2.getCreatedAt()))
                     .orElseThrow(() -> new GeneralException(ErrorStatus.PASS_NOT_AVAILABLE));
 
-            pass.consume(member.getId(), passValidator);
+            pass.consume(user.getId(), passValidator);
 
             // 인증 사용량 기록
-            increaseUsage(member.getId());
+            increaseUsage(user.getId());
         }
 
         // 6) Todo 완료 처리
@@ -182,7 +180,7 @@ public class VerificationService {
         }
 
         log.info("인증 결과 | member={}, todo={}, type={}, success={}, confidence={}",
-                member.getId(), todo.getTodoId(), type, success, confidence);
+                user.getId(), todo.getTodoId(), type, success, confidence);
 
         // 7) Response 생성
         return VerificationResponse.from(verification, todo, success, confidence);

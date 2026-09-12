@@ -7,7 +7,7 @@ import hongik.Todoing.domain.jwt.JwtUtil;
 import hongik.Todoing.domain.auth.util.KakaoUtil;
 import hongik.Todoing.domain.auth.dto.KakaoDTO;
 import hongik.Todoing.domain.jwt.dto.JwtDTO;
-import hongik.Todoing.domain.member.domain.Member;
+import hongik.Todoing.domain.member.domain.User;
 import hongik.Todoing.domain.member.repository.MemberRepository;
 import hongik.Todoing.global.apiPayload.code.status.ErrorStatus;
 import hongik.Todoing.global.apiPayload.exception.GeneralException;
@@ -26,42 +26,42 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
 
 
-    public Member loginByOAuth(String accessCode, HttpServletResponse response) {
+    public User loginByOAuth(String accessCode, HttpServletResponse response) {
         KakaoDTO.OAuthToken oAuthToken = kakaoUtil.requestToken(accessCode);
         KakaoDTO.KakaoProfile kakaoProfile= kakaoUtil.requestProfile(oAuthToken);
 
         String email = kakaoProfile.getKakao_account().getEmail();
 
-        Member member = memberRepository.findByEmail(email)
+        User user = memberRepository.findByEmail(email)
                 .orElseGet(() -> createNewMember(kakaoProfile));
 
-        String token = jwtUtil.createAccessToken(member.getEmail(), member.getRole().toString());
+        String token = jwtUtil.createAccessToken(user.getEmail(), user.getRole().toString());
         response.setHeader("Authorization", token);
 
-        return member;
+        return user;
     }
 
-    private Member createNewMember(KakaoDTO.KakaoProfile kakaoProfile) {
-        Member newMember = AuthConverter.toMember(
+    private User createNewMember(KakaoDTO.KakaoProfile kakaoProfile) {
+        User newUser = AuthConverter.toMember(
                 kakaoProfile.getKakao_account().getEmail(),
                 kakaoProfile.getProperties().getNickname(),
                 "OAUTH",
                 passwordEncoder
         );
 
-        return memberRepository.save(newMember);
+        return memberRepository.save(newUser);
     }
 
     public JwtDTO loginByEmail(String email, String password) {
-        Member member = memberRepository.findByEmail(email)
+        User user = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new GeneralException(ErrorStatus.MEMBER_NOT_FOUND));
 
-        if(!passwordEncoder.matches(password, member.getPassword())) {
+        if(!passwordEncoder.matches(password, user.getPassword())) {
             throw new GeneralException(ErrorStatus.INVALID_PASSWORD);
         }
 
         // PrincipalDetails 생성
-        PrincipalDetails principalDetails = new PrincipalDetails(member);
+        PrincipalDetails principalDetails = new PrincipalDetails(user);
 
         // JWT 발급
         String accessToken = jwtUtil.createJwtAccessToken(principalDetails);
@@ -80,14 +80,14 @@ public class AuthService {
         String encodedPassword = passwordEncoder.encode(request.getPassword());
 
         // Member 생성
-        Member member = Member.builder()
+        User user = User.builder()
                 .name(request.getName())
                 .email(request.getEmail())
                 .password(encodedPassword)
                 .role("ROLE_USER")
                 .build();
 
-        memberRepository.save(member);
+        memberRepository.save(user);
 
         // 자동 로그인 안 함
 

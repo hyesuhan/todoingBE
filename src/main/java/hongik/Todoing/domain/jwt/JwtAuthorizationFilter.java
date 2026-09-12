@@ -2,7 +2,7 @@ package hongik.Todoing.domain.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hongik.Todoing.domain.auth.util.PrincipalDetails;
-import hongik.Todoing.domain.member.domain.Member;
+import hongik.Todoing.domain.member.domain.User;
 import hongik.Todoing.domain.member.repository.MemberRepository;
 import hongik.Todoing.global.apiPayload.ApiResponse;
 import hongik.Todoing.global.util.RedisUtil;
@@ -53,10 +53,10 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             // accessToken 을 기반으로 principalDetail 저장
             String email = jwtUtil.getUsername(accessToken);
 
-            Member member = memberRepository.findByEmail(email)
+            User user = memberRepository.findByEmail(email)
                     .orElseThrow(()->new RuntimeException("User not found"));
 
-            PrincipalDetails principalDetails = new PrincipalDetails(member);
+            PrincipalDetails principalDetails = new PrincipalDetails(user);
 
 
 

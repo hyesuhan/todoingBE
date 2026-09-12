@@ -6,7 +6,7 @@ import hongik.Todoing.domain.auth.dto.SignUpRequestDto;
 import hongik.Todoing.domain.auth.service.AuthService;
 import hongik.Todoing.domain.jwt.JwtUtil;
 import hongik.Todoing.domain.jwt.dto.JwtDTO;
-import hongik.Todoing.domain.member.domain.Member;
+import hongik.Todoing.domain.member.domain.User;
 import hongik.Todoing.global.apiPayload.ApiResponse;
 import hongik.Todoing.global.apiPayload.code.status.ErrorStatus;
 import hongik.Todoing.global.apiPayload.code.status.SuccessStatus;
@@ -45,10 +45,10 @@ public class AuthController {
     @Operation(summary = "카카오톡으로 로그인합니다.")
     @GetMapping("/login/kakao")
     public ApiResponse<?> kakaoLogin(@RequestParam("code") String accessCode, HttpServletResponse response) {
-        Member member = authService.loginByOAuth(accessCode, response);
+        User user = authService.loginByOAuth(accessCode, response);
 
         String accessToken = response.getHeader("Authorization");
-        return ApiResponse.onSuccess(AuthConverter.JoinResponse(member, accessToken));
+        return ApiResponse.onSuccess(AuthConverter.JoinResponse(user, accessToken));
     }
 
     // 로그인

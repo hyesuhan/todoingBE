@@ -1,7 +1,7 @@
-package hongik.Todoing.domain.todoReply.domain;
+package hongik.Todoing.domain.aiChat.domain;
+
 
 import hongik.Todoing.domain.member.domain.User;
-import hongik.Todoing.domain.todo.domain.Todo;
 import hongik.Todoing.global.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -14,20 +14,19 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class TodoReply extends BaseEntity {
+public class Chat extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long replyId;
+    private Long chatId;
 
-    private String content;
-
-    @ManyToOne
-    @JoinColumn(name = "todo_id")
-    private Todo todo;
+    // 길이 제한
+    @Column(length = 255)
+    private String message;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    @JoinColumn(name = "sender_id")
+    private User sender;
+
 
 }

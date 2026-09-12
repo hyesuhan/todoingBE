@@ -1,6 +1,5 @@
 package hongik.Todoing.domain.todo.repository;
 
-import hongik.Todoing.domain.member.domain.Member;
 import hongik.Todoing.domain.todo.domain.Todo;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

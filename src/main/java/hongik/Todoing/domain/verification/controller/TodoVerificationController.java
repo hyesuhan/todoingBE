@@ -2,8 +2,6 @@ package hongik.Todoing.domain.verification.controller;
 
 import com.google.cloud.vision.v1.EntityAnnotation;
 import hongik.Todoing.domain.auth.util.PrincipalDetails;
-import hongik.Todoing.domain.member.domain.Member;
-import hongik.Todoing.domain.verification.domain.Verification;
 import hongik.Todoing.domain.verification.dto.TextAnnotationDto;
 import hongik.Todoing.domain.verification.dto.VerificationResponse;
 import hongik.Todoing.domain.verification.service.SpeechService;
@@ -79,7 +77,7 @@ public class TodoVerificationController {
             @RequestParam Long todoId,
             @RequestPart("image") MultipartFile image
     ){
-        VerificationResponse response = verificationService.verifyTodoImage(principal.getMember(), todoId, image);
+        VerificationResponse response = verificationService.verifyTodoImage(principal.getUser(), todoId, image);
         return ApiResponse.onSuccess(response);
     }
 
@@ -91,7 +89,7 @@ public class TodoVerificationController {
             @RequestParam String transcript
     ) {
         VerificationResponse response =
-                verificationService.verifyTodoVoice(principal.getMember(), todoId, transcript);
+                verificationService.verifyTodoVoice(principal.getUser(), todoId, transcript);
         return ApiResponse.onSuccess(response);
     }
 
@@ -103,7 +101,7 @@ public class TodoVerificationController {
             @RequestParam String text
     ) {
         VerificationResponse response =
-                verificationService.verifyTodoText(principal.getMember(), todoId, text);
+                verificationService.verifyTodoText(principal.getUser(), todoId, text);
         return ApiResponse.onSuccess(response);
     }
 
@@ -115,7 +113,7 @@ public class TodoVerificationController {
     ) throws IOException {
         String transcript = speechService.stt(audioFile); // 음성 → 텍스트
         VerificationResponse response =
-                verificationService.verifyTodoVoice(principal.getMember(), todoId, transcript);
+                verificationService.verifyTodoVoice(principal.getUser(), todoId, transcript);
         return ApiResponse.onSuccess(response);
     }
 
