@@ -1,7 +1,7 @@
-package hongik.Todoing.Api.order.controller;
+package hongik.Todoing.domain.order.controller;
 
-import hongik.Todoing.Api.order.model.dto.request.KakaoReadyRequest;
-import hongik.Todoing.Api.order.service.pass.PassUsecase;
+import hongik.Todoing.domain.order.dto.pass.request.KakaoReadyRequest;
+import hongik.Todoing.domain.order.facade.PassUsecase;
 import hongik.Todoing.domain.order.dto.order.response.KakaoReadyResponse;
 import hongik.Todoing.global.apiPayload.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;

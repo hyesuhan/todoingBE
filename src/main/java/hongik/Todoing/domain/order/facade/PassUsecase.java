@@ -1,4 +1,4 @@
-package hongik.Todoing.Api.order.service.pass;
+package hongik.Todoing.domain.order.facade;
 
 import hongik.Todoing.Common.annotation.UseCase;
 import hongik.Todoing.domain.order.domain.order.Order;
