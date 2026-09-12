@@ -24,7 +24,7 @@ public class SwaggerConfig {
         );
 
         return new OpenAPI()
-                .components(components) // ✅ 한 번만
+                .components(components)
                 .info(apiInfo())
                 .addSecurityItem(securityRequirement);
     }
@@ -33,6 +33,6 @@ public class SwaggerConfig {
         return new Info()
                 .title("투둥이API Test")
                 .description("홍익대학교 2025 졸업 프로젝트")
-                .version("1.0.0");
+                .version("2.0.0");
     }
 }
