@@ -38,11 +38,13 @@ public class User {
     @Builder.Default
     private Status status = Status.PENDING;
 
-    private String role; // ROLE_USER, ROLE_ADMIN
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false)
+    private Role role;
 
     public List<String> getRoleList() {
-        if (!this.role.isEmpty()) {
-            return Arrays.asList(this.role.split(","));
+        if (!this.role.toString().isEmpty()) {
+            return Arrays.asList(this.role.toString().split(","));
         }
         return new ArrayList<>();
     }
