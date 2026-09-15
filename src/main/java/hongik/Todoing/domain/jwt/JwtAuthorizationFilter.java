@@ -4,7 +4,6 @@ import hongik.Todoing.domain.auth.util.PrincipalDetails;
 import hongik.Todoing.domain.member.domain.User;
 import hongik.Todoing.domain.member.service.MemberCacheService;
 import hongik.Todoing.global.apiPayload.exception.GeneralException;
-import hongik.Todoing.global.util.RedisUtil;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -26,7 +25,6 @@ import java.security.SignatureException;
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
-    // private final RedisUtil redisUtil;
     private final MemberCacheService memberCacheService;
 
     @Override

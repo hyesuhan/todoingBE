@@ -7,7 +7,6 @@ import hongik.Todoing.domain.jwt.JwtUtil;
 import hongik.Todoing.domain.member.service.MemberCacheService;
 import hongik.Todoing.global.apiPayload.ApiResponse;
 import hongik.Todoing.global.apiPayload.code.status.ErrorStatus;
-import hongik.Todoing.global.util.RedisUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -31,7 +30,6 @@ public class SecurityConfig {
 
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JwtUtil jwtUtil;
-    private final RedisUtil redisUtil;
     private final MemberCacheService memberCacheService;
 
     private final String[] allowedUrls = {
@@ -109,7 +107,7 @@ public class SecurityConfig {
         loginFilter.setFilterProcessesUrl("/login");
 
         // ✅ JWT 권한 필터 (모든 요청에 대해 accessToken 확인)
-        JwtAuthorizationFilter authorizationFilter = new JwtAuthorizationFilter(jwtUtil, redisUtil, memberCacheService);
+        JwtAuthorizationFilter authorizationFilter = new JwtAuthorizationFilter(jwtUtil, memberCacheService);
 
         // 필터 순서 중요: 권한 필터는 로그인 필터보다 먼저 실행돼야 함
         http

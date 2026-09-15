@@ -60,6 +60,12 @@ spring:
         port: ${REDIS_PORT:6379}
 
 
+llm:
+  nvidia:
+    api-key: ${LLAMA_API_KEY}
+    base-url: ${LLM_BASE_URL:https://integrate.api.nvidia.com/v1/chat/completions}
+    model: meta/llama-3.2-11b-vision-instruct
+
 kakao:
   client_id: ${KAKAO_CLIENT_ID}
   redirect_uri: ${KAKAO_REDIRECT_URI}

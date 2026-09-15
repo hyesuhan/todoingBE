@@ -94,7 +94,7 @@ public class OpenAiService {
         }
 
         Map<String, Object> body = new HashMap<>();
-        body.put("model", "gpt-5");   // temperature 제거
+        body.put("model", model);
         body.put("messages", fullMessages);
 
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
