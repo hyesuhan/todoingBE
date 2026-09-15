@@ -33,6 +33,7 @@ public class OpenAiService {
     public ChatResponseDTO ask(String userId, List<ChatRequestDTO.Message> messages) {
 
         ChatSessionState session = sessionService.get(userId);
+        sessionService.extendTtl(userId); // 대화가 이어지는 한 세션 TTL을 24시간 뒤로 연장
 
         String url = apiUrl;
 
