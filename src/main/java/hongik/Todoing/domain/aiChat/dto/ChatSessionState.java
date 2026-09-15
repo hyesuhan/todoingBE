@@ -15,5 +15,4 @@ public class ChatSessionState implements Serializable {
     private String startDate;
     private String endDate;
     private String level;
-
 }

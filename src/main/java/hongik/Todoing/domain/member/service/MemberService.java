@@ -16,6 +16,7 @@ public class MemberService {
 
     private final PasswordEncoder passwordEncoder;
     private final MemberRepository memberRepository;
+    private final MemberCacheService memberCacheService;
 
     public GetProfileDTO getProfile(User user) {
         return GetProfileDTO.from(user);
@@ -32,6 +33,6 @@ public class MemberService {
         }
 
         memberRepository.save(user);
-
+        memberCacheService.evict(user.getEmail());
     }
 }

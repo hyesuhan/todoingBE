@@ -2,8 +2,7 @@ package hongik.Todoing.domain.jwt;
 
 import hongik.Todoing.domain.auth.util.PrincipalDetails;
 import hongik.Todoing.domain.member.domain.User;
-import hongik.Todoing.domain.member.repository.MemberRepository;
-import hongik.Todoing.global.apiPayload.code.status.ErrorStatus;
+import hongik.Todoing.domain.member.service.MemberCacheService;
 import hongik.Todoing.global.apiPayload.exception.GeneralException;
 import hongik.Todoing.global.util.RedisUtil;
 import io.jsonwebtoken.JwtException;
@@ -27,8 +26,8 @@ import java.security.SignatureException;
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
-    private final RedisUtil redisUtil;
-    private final MemberRepository memberRepository;
+    // private final RedisUtil redisUtil;
+    private final MemberCacheService memberCacheService;
 
     @Override
     protected void doFilterInternal(
@@ -54,8 +53,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
             String email = jwtUtil.getUsername(accessToken);
 
-            User user = memberRepository.findByEmail(email)
-                    .orElseThrow(() -> new GeneralException(ErrorStatus.MEMBER_NOT_FOUND));
+            User user = memberCacheService.getByEmail(email);
 
             PrincipalDetails principalDetails = new PrincipalDetails(user);
 

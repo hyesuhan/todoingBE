@@ -21,18 +21,24 @@ public class OpenAiService {
     private final SystemPromptLoader systemPromptLoader;
     private final ChatHistoryService chatHistoryService;
 
-    @Value("${spring.ai.openai.api-key}")
-    private String openaiApiKey;
+    @Value("${llm.nvidia.api-key}")
+    private String apiKey;
+
+    @Value("${llm.nvidia.base-url}")
+    private String apiUrl;
+
+    @Value("${llm.nvidia.model}")
+    private String model;
 
     public ChatResponseDTO ask(String userId, List<ChatRequestDTO.Message> messages) {
 
         ChatSessionState session = sessionService.get(userId);
 
-        String url = "https://api.openai.com/v1/chat/completions";
+        String url = apiUrl;
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth(openaiApiKey);
+        headers.setBearerAuth(apiKey);
 
         List<Map<String, Object>> fullMessages = new ArrayList<>();
 
