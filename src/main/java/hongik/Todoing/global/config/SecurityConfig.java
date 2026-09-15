@@ -42,7 +42,11 @@ public class SecurityConfig {
             "/api/users/reissue",
             "/swagger-ui/**", "/swagger-resources/**", "/v3/api-docs/**",
             "/chat",
-            "/api/verification/**"
+            // 아래 3개만 인증 없이 호출 가능한 테스트/원시 감지용 엔드포인트.
+            // /image, /voice, /text, /voice/file 은 @AuthenticationPrincipal로 유저를 사용하므로 반드시 인증 필요 (NPE 방지)
+            "/api/verification/*/vision",
+            "/api/verification/test",
+            "/api/verification/test/labels"
     };
 
     @Bean
