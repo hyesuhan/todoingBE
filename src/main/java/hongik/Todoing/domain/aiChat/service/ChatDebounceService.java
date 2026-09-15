@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hongik.Todoing.domain.aiChat.dto.request.ChatRequestDTO;
 import hongik.Todoing.domain.aiChat.dto.response.ChatResultDTO;
-import hongik.Todoing.domain.aiChat.dto.response.ChatSubmitResponseDTO;
 import hongik.Todoing.domain.aiChat.event.GptRequestEvent;
 import hongik.Todoing.domain.aiChat.store.ChatResultStore;
 import hongik.Todoing.domain.aiChat.util.ChatBufferManager;
@@ -25,29 +24,28 @@ public class ChatDebounceService {
     private final ApplicationEventPublisher eventPublisher;
     private final ChatResultStore chatResultStore;
 
-    public ChatSubmitResponseDTO receiveUserMessage(String userId, ChatRequestDTO.Message message) {
-        bufferManager.add(userId, message);
+    // key = "userId:sessionId" 조합. 반환 DTO(pollingUrl 등)는 실제 sessionId가 필요해서 컨트롤러가 만듦.
+    public void receiveUserMessage(String key, ChatRequestDTO.Message message) {
+        bufferManager.add(key, message);
 
         // 타이머 초기화 및 새 작업 예약
-        timerManager.reset(userId, () -> {
-            List<ChatRequestDTO.Message> messages = bufferManager.drain(userId);
+        timerManager.reset(key, () -> {
+            List<ChatRequestDTO.Message> messages = bufferManager.drain(key);
             if (!messages.isEmpty()) {
-                eventPublisher.publishEvent(new GptRequestEvent(userId, messages));
+                eventPublisher.publishEvent(new GptRequestEvent(key, messages));
             }
         });
-
-        return ChatSubmitResponseDTO.of(userId);
     }
 
-    public ChatResultDTO getResult(String userId) {
-        String raw = chatResultStore.get(userId);
+    public ChatResultDTO getResult(String key) {
+        String raw = chatResultStore.get(key);
 
         if (raw == null) {
             return null;
         }
 
         // 일회성 데이터이므로 즉시 제거
-        chatResultStore.clear(userId);
+        chatResultStore.clear(key);
 
         try {
             ObjectMapper mapper = new ObjectMapper();

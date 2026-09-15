@@ -18,17 +18,15 @@ public class GptRequestEventHandler {
 
     @EventListener
     public void handleGptRequest(GptRequestEvent event) {
-        // GPT 호출(블로킹 HTTP)을 이벤트 발행 스레드(디바운스 스케줄러, 1개)에서 떼어내
-        // llmExecutor(5스레드)로 넘김 - trouble-shooting/01-gpt-call-blocks-thread.md
         llmExecutor.submit(() -> {
             try {
-                System.out.println("\n🔥[EVENT FIRED] user = " + event.userId() +
+                System.out.println("\n🔥[EVENT FIRED] key = " + event.key() +
                         ", messages = " + event.messages().size());
 
-                String result = openAiService.ask(event.userId(), event.messages()).prompt();
+                String result = openAiService.ask(event.key(), event.messages()).prompt();
 
                 System.out.println("result 도 프린트 했아욤");
-                chatResultStore.save(event.userId(), result);
+                chatResultStore.save(event.key(), result);
 
             } catch (Exception e) {
                 System.out.println("🔥🔥 GPT 처리 스레드에서 예외 발생!!!");

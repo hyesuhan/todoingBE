@@ -94,9 +94,11 @@ public class TodoController {
     @PostMapping("/chat")
     public ApiResponse<Void> createTodoWithChat(
             @AuthenticationPrincipal PrincipalDetails principal,
+            @RequestParam String sessionId,
             @RequestBody ChatTodoCreateRequestDTO requestDTO){
 
-        ChatSessionState sessionState = chatSessionService.get(principal.getUsername());
+        String key = principal.getUsername() + ":" + sessionId;
+        ChatSessionState sessionState = chatSessionService.get(key);
         if(sessionState == null ){
             return ApiResponse.onSuccess(null);
         }
