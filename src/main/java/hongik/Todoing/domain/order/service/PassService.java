@@ -27,7 +27,7 @@ public class PassService {
         // 패스 생성 로직을 구현합니다.
         // 예: 패스 엔티티를 생성하고 저장소에 저장
 
-        Pass pass = new Pass(userId, order.getItemCode(), order.getId());
+        Pass pass = Pass.issue(userId, order.getItemCode(), order.getId());
 
         passAdaptor.save(pass);
 

@@ -34,7 +34,7 @@ public class FriendService {
         User target = memberRepository.findByEmail(friendEmail)
                 .orElseThrow(() -> new GeneralException(ErrorStatus.MEMBER_NOT_FOUND));
 
-        if (friendRepository.existsByMemberAndFriend(me, target)) {
+        if (friendRepository.existsByUserAndFriend(me, target)) {
             throw new GeneralException(ErrorStatus.FRIEND_REQUEST_DUPLICATED);
         }
 
@@ -44,7 +44,7 @@ public class FriendService {
     }
 
     public List<FriendResponseDTO> getMyFriends(User me) {
-        List<Friend> friends = friendRepository.findAllByMember(me);
+        List<Friend> friends = friendRepository.findAllByUser(me);
         return FriendConverter.toFrienResponseDtoList(friends);
     }
 
@@ -52,7 +52,7 @@ public class FriendService {
         User target = memberRepository.findById(friendId)
                 .orElseThrow(() -> new GeneralException(ErrorStatus.MEMBER_NOT_FOUND));
 
-        Friend friend = friendRepository.findByMemberAndFriend(me, target);
+        Friend friend = friendRepository.findByUserAndFriend(me, target);
 
         friendRepository.delete(friend);
 
@@ -62,7 +62,7 @@ public class FriendService {
         User target = memberRepository.findById(friendId)
                 .orElseThrow(() -> new GeneralException(ErrorStatus.MEMBER_NOT_FOUND));
 
-        Friend friend = friendRepository.findByMemberAndFriend(me, target);
+        Friend friend = friendRepository.findByUserAndFriend(me, target);
 
         friend.updateStatus(FriendStatus.BLOCKED);
     }
@@ -71,7 +71,7 @@ public class FriendService {
         User target = memberRepository.findById(friendId)
                 .orElseThrow(() -> new GeneralException(ErrorStatus.MEMBER_NOT_FOUND));
 
-        Friend friend = friendRepository.findByMemberAndFriend(me, target);
+        Friend friend = friendRepository.findByUserAndFriend(me, target);
 
         if(friend.getStatus() == FriendStatus.BLOCKED) {
             throw new GeneralException(ErrorStatus.FRIEND_BLOCKED);

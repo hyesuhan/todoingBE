@@ -7,6 +7,7 @@ import hongik.Todoing.domain.jwt.JwtUtil;
 import hongik.Todoing.domain.auth.util.KakaoUtil;
 import hongik.Todoing.domain.auth.dto.KakaoDTO;
 import hongik.Todoing.domain.jwt.dto.JwtDTO;
+import hongik.Todoing.domain.member.domain.Role;
 import hongik.Todoing.domain.member.domain.User;
 import hongik.Todoing.domain.member.repository.MemberRepository;
 import hongik.Todoing.global.apiPayload.code.status.ErrorStatus;
@@ -35,7 +36,7 @@ public class AuthService {
         User user = memberRepository.findByEmail(email)
                 .orElseGet(() -> createNewMember(kakaoProfile));
 
-        String token = jwtUtil.createAccessToken(user.getEmail(), user.getRole().toString());
+        String token = jwtUtil.createAccessToken(user.getEmail(), "ROLE_" + user.getRole().name());
         response.setHeader("Authorization", token);
 
         return user;
@@ -80,12 +81,7 @@ public class AuthService {
         String encodedPassword = passwordEncoder.encode(request.getPassword());
 
         // Member 생성
-        User user = User.builder()
-                .name(request.getName())
-                .email(request.getEmail())
-                .password(encodedPassword)
-                .role("ROLE_USER")
-                .build();
+        User user = User.create(request.getName(), request.getEmail(), encodedPassword, Role.USER);
 
         memberRepository.save(user);
 

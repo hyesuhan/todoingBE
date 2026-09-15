@@ -1,16 +1,15 @@
 package hongik.Todoing.domain.order.domain.pass;
 
-import hongik.Todoing.domain.order.domain.order.Order;
 import hongik.Todoing.domain.order.validator.PassValidator;
 import hongik.Todoing.global.common.BaseEntity;
 import jakarta.persistence.*;
-import lombok.Builder;
+import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 @Entity
 @Getter
-@NoArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class Pass extends BaseEntity {
 
     @Id
@@ -45,19 +44,16 @@ public class Pass extends BaseEntity {
     @Version
     private Long version;
 
-    @Builder
-    public Pass(
-            Long userId,
-            ProductCode productCode,
-            Long orderId) {
-        this.userId = userId;
-        this.productCode = productCode;
-        this.limitCount = productCode.getLimitCount();
-        this.usedCount = 0; // 초기 사용 횟수는 0
-        this.status = PassStatus.ACTIVE; // 기본 상태는 ACTIVE
-        this.orderId = orderId; // 결제 아이디 설정
+    public static Pass issue(Long userId, ProductCode productCode, Long orderId) {
+        Pass pass = new Pass();
+        pass.userId = userId;
+        pass.productCode = productCode;
+        pass.limitCount = productCode.getLimitCount();
+        pass.usedCount = 0; // 초기 사용 횟수는 0
+        pass.status = PassStatus.ACTIVE; // 기본 상태는 ACTIVE
+        pass.orderId = orderId; // 결제 아이디 설정
+        return pass;
     }
-
 
     public Integer remainingCount() {
         return limitCount - usedCount;

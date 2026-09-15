@@ -151,12 +151,7 @@ public class VerificationService {
         double confidence = result.getConfidence();
 
         // 4) Verification 엔티티 저장
-        Verification verification = Verification.builder()
-                .type(type)
-                .todoId(todo.getTodoId())
-                .success(success)
-                .confidence(confidence)
-                .build();
+        Verification verification = Verification.record(type, todo.getTodoId(), success, confidence);
 
         verificationAdaptor.save(verification);
 
@@ -189,10 +184,7 @@ public class VerificationService {
     // 인증 사용량 +1
     private void increaseUsage(Long userId) {
         VerificationUsage usage = verificationUsageRepository.findByUserId(userId)
-                .orElseGet(() -> VerificationUsage.builder()
-                        .userId(userId)
-                        .usageCount(0)
-                        .build());
+                .orElseGet(() -> VerificationUsage.init(userId));
 
         usage.increase();
         verificationUsageRepository.save(usage);

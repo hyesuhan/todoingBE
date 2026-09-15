@@ -34,14 +34,7 @@ public class ChatTodoService {
 
             for (ChatTodoCreateRequestDTO.SubQuest subQuest : requestDTO.getSubQuests()) {
                 System.out.println("SubQuest: task=" + subQuest.getTask() + ", date=" + subQuest.getDate());
-                Todo todo = Todo.builder()
-                        .memberId(user.getId())
-                        .content(subQuest.getTask())
-                        .todoDate(LocalDate.parse(subQuest.getDate()))
-                        .labelId(label.getLabelId())
-                        .isAiNeeded(true)
-                        .isCompleted(false)
-                        .build();
+                Todo todo = Todo.create(user.getId(), subQuest.getTask(), LocalDate.parse(subQuest.getDate()), label.getLabelId(), true);
 
                 todoRepository.save(todo);
                 System.out.println("✅ Todo saved: " + todo.getContent());

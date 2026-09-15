@@ -30,14 +30,7 @@ public class SelfTodoService {
 
     @Transactional
     public void createTodo(Long memberId, String content, LocalDate todoDate, Label label, boolean isAiNeeded) {
-        Todo todo = Todo.builder()
-                .memberId(memberId)
-                .content(content)
-                .todoDate(todoDate)
-                .labelId(label.getLabelId())
-                .isAiNeeded(isAiNeeded)
-                .isCompleted(false)
-                .build();
+        Todo todo = Todo.create(memberId, content, todoDate, label.getLabelId(), isAiNeeded);
 
         todoRepository.save(todo);
     }

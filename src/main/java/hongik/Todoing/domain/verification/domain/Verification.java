@@ -1,25 +1,18 @@
 package hongik.Todoing.domain.verification.domain;
 
-import hongik.Todoing.domain.todo.domain.Todo;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-
-import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 @Entity
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class Verification {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long verificationId;
 
-    // 여기는 뭐로 해야하지?
     @Enumerated(EnumType.STRING)
     private VerificationType type;
 
@@ -30,4 +23,12 @@ public class Verification {
     @Column(name =  "todo_id")
     private Long todoId;
 
+    public static Verification record(VerificationType type, Long todoId, boolean success, double confidence) {
+        Verification verification = new Verification();
+        verification.type = type;
+        verification.todoId = todoId;
+        verification.success = success;
+        verification.confidence = confidence;
+        return verification;
+    }
 }

@@ -9,7 +9,7 @@ public interface MemberRepository extends JpaRepository<User, Long> {
     // Custom query methods can be defined here if needed
     // For example, findByUsername(String username) or findByEmail(String email)
     Optional<User> findById(Long id);
-    Optional<User> findByName(String name);
+    Optional<User> findByNickname(String nickname);
     Optional<User> findByEmail(String email);
     boolean existsByEmail(String email);
 }

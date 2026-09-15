@@ -21,9 +21,9 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class ChatController {
 
-    private final OpenAiService openAiService;
+    // private final OpenAiService openAiService;
     private final ChatSessionService chatSessionService;
-    private final StringRedisTemplate stringRedisTemplate;
+    // private final StringRedisTemplate stringRedisTemplate;
     private final ChatDebounceService chatDebounceService;
 
     @PostMapping("/setting")

@@ -2,16 +2,13 @@ package hongik.Todoing.domain.verification.domain;
 
 import hongik.Todoing.global.common.BaseEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 @Entity
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class VerificationUsage extends BaseEntity {
 
     @Id
@@ -22,6 +19,13 @@ public class VerificationUsage extends BaseEntity {
 
     @Column(name =  "user_id")
     private Long userId;
+
+    public static VerificationUsage init(Long userId) {
+        VerificationUsage usage = new VerificationUsage();
+        usage.userId = userId;
+        usage.usageCount = 0;
+        return usage;
+    }
 
     public void increase() {
         if (usageCount == null) {

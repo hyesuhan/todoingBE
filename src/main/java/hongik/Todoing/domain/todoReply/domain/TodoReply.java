@@ -4,16 +4,13 @@ import hongik.Todoing.domain.member.domain.User;
 import hongik.Todoing.domain.todo.domain.Todo;
 import hongik.Todoing.global.common.BaseEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 @Entity
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class TodoReply extends BaseEntity {
 
     @Id
@@ -30,4 +27,11 @@ public class TodoReply extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
+    public static TodoReply write(Todo todo, User user, String content) {
+        TodoReply reply = new TodoReply();
+        reply.todo = todo;
+        reply.user = user;
+        reply.content = content;
+        return reply;
+    }
 }
