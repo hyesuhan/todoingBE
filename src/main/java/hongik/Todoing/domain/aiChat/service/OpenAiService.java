@@ -16,7 +16,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class OpenAiService {
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
     private final ChatSessionService sessionService;
     private final SystemPromptLoader systemPromptLoader;
     private final ChatHistoryService chatHistoryService;
