@@ -75,6 +75,17 @@ public class ChatDebounceService {
                 );
             }
 
+            // ✔ GPT 처리 스레드에서 예외가 나서 실패로 끝난 경우 (GptRequestEventHandler.buildErrorJson)
+            if (type.equals("error")) {
+                String content = root.get("content").asText();
+
+                return new ChatResultDTO(
+                        UUID.randomUUID().toString(),
+                        "error",
+                        content
+                );
+            }
+
         } catch (Exception e) {
             log.warn("결과 JSON 파싱 실패 key={}, raw={}", key, raw, e);
         }
