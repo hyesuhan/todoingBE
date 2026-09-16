@@ -1,11 +1,13 @@
 package hongik.Todoing.domain.aiChat.store;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class ChatResultStore {
@@ -20,7 +22,7 @@ public class ChatResultStore {
      */
     public void save(String userId, String response) {
         redisTemplate.opsForValue().set(KEY_PREFIX + userId, response, TTL);
-        System.out.println("🔥[STORE SAVE] user=" + userId + " 저장값=" + response);
+        log.debug("결과 저장 key={}", userId);
     }
 
     /**
@@ -28,7 +30,7 @@ public class ChatResultStore {
      */
     public String get(String userId) {
         String value = redisTemplate.opsForValue().get(KEY_PREFIX + userId);
-        System.out.println("🔥[STORE GET] user=" + userId + " 반환값=" + value);
+        log.debug("결과 조회 key={}, hit={}", userId, value != null);
         return value; // null이면 null 그대로 프론트에 전달됨
     }
 

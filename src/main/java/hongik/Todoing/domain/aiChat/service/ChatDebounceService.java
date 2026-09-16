@@ -9,12 +9,14 @@ import hongik.Todoing.domain.aiChat.store.ChatResultStore;
 import hongik.Todoing.domain.aiChat.util.ChatBufferManager;
 import hongik.Todoing.domain.aiChat.util.ChatDebounceTimerManager;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ChatDebounceService {
@@ -74,7 +76,7 @@ public class ChatDebounceService {
             }
 
         } catch (Exception e) {
-            System.out.println("JSON 파싱 오류: " + e.getMessage());
+            log.warn("결과 JSON 파싱 실패 key={}, raw={}", key, raw, e);
         }
 
         // ✔ JSON 파싱 실패 시 fallback
