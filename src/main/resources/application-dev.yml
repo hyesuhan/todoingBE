@@ -13,12 +13,11 @@ spring:
   main:
     web-application-type: servlet
   ai:
-    model:
-      chat:
-        options:
-          model: gpt-3.5-turbo
     openai:
-      api-key: ${OPENAI_API_KEY}
+      api-key: ${LLAMA_API_KEY}
+      base-url: ${LLM_BASE_URL:https://integrate.api.nvidia.com/v1}
+      chat:
+        model: ${LLM_MODEL:meta/llama-3.2-11b-vision-instruct}
 
   datasource:
     url: ${SPRING_DATASOURCE_URL}
@@ -59,12 +58,6 @@ spring:
         host: ${REDIS_HOST:redis}
         port: ${REDIS_PORT:6379}
 
-
-llm:
-  nvidia:
-    api-key: ${LLAMA_API_KEY}
-    base-url: ${LLM_BASE_URL:https://integrate.api.nvidia.com/v1/chat/completions}
-    model: meta/llama-3.2-11b-vision-instruct
 
 kakao:
   client_id: ${KAKAO_CLIENT_ID}

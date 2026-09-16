@@ -4,86 +4,67 @@ import hongik.Todoing.domain.aiChat.dto.request.ChatRequestDTO;
 import hongik.Todoing.domain.aiChat.dto.response.ChatResponseDTO;
 import hongik.Todoing.domain.aiChat.dto.ChatSessionState;
 import hongik.Todoing.global.prompt.SystemPromptLoader;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.messages.AssistantMessage;
+import org.springframework.ai.chat.messages.Message;
+import org.springframework.ai.chat.messages.SystemMessage;
+import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 public class OpenAiService {
 
-    private final RestTemplate restTemplate;
+    private final ChatClient chatClient;
     private final ChatSessionService sessionService;
     private final SystemPromptLoader systemPromptLoader;
     private final ChatHistoryService chatHistoryService;
 
-    @Value("${llm.nvidia.api-key}")
-    private String apiKey;
-
-    @Value("${llm.nvidia.base-url}")
-    private String apiUrl;
-
-    @Value("${llm.nvidia.model}")
-    private String model;
+    public OpenAiService(ChatClient.Builder chatClientBuilder,
+                          ChatSessionService sessionService,
+                          SystemPromptLoader systemPromptLoader,
+                          ChatHistoryService chatHistoryService) {
+        this.chatClient = chatClientBuilder.build();
+        this.sessionService = sessionService;
+        this.systemPromptLoader = systemPromptLoader;
+        this.chatHistoryService = chatHistoryService;
+    }
 
     public ChatResponseDTO ask(String userId, List<ChatRequestDTO.Message> messages) {
 
         ChatSessionState session = sessionService.get(userId);
         sessionService.extendTtl(userId); // 대화가 이어지는 한 세션 TTL을 24시간 뒤로 연장
 
-        String url = apiUrl;
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth(apiKey);
-
-        List<Map<String, Object>> fullMessages = new ArrayList<>();
+        List<Message> fullMessages = new ArrayList<>();
 
         // 1. 페르소나
-        fullMessages.add(Map.of(
-                "role", "system",
-                "content", systemPromptLoader.get("persona")
-        ));
+        fullMessages.add(new SystemMessage(systemPromptLoader.get("persona")));
 
         // 2. 응답 포멧
-        fullMessages.add(Map.of(
-                "role", "system",
-                "content", systemPromptLoader.get("format")
-        ));
+        fullMessages.add(new SystemMessage(systemPromptLoader.get("format")));
 
         // 3. 세션
-        fullMessages.add(Map.of(
-                "role", "system",
-                "content", systemPromptLoader.getSessionFormatted(
-                        session.getCategory(),
-                        session.getLevel(),
-                        session.getStartDate(),
-                        session.getEndDate()
-                )
-        ));
+        fullMessages.add(new SystemMessage(systemPromptLoader.getSessionFormatted(
+                session.getCategory(),
+                session.getLevel(),
+                session.getStartDate(),
+                session.getEndDate()
+        )));
 
         // 4. 이전 대화
         List<Object> historyList = chatHistoryService.getHistory(userId);
         if (historyList != null) {
             for (Object h : historyList) {
                 ChatMessageDTO hist = (ChatMessageDTO) h;
-                fullMessages.add(Map.of(
-                        "role", hist.getRole(),
-                        "content", hist.getContent()
-                ));
+                fullMessages.add(toMessage(hist.getRole(), hist.getContent()));
             }
         }
 
-        // 5. 유저 메세지 생성
+        // 5. 유저 메세지 추가
         for (ChatRequestDTO.Message msg : messages) {
-            fullMessages.add(Map.of(
-                    "role", msg.getRole(),
-                    "content", msg.getContent()
-            ));
+            fullMessages.add(toMessage(msg.getRole(), msg.getContent()));
         }
 
         // 6. 유저 메세지 chatHistory 세션에 저장
@@ -94,34 +75,29 @@ public class OpenAiService {
             );
         }
 
-        Map<String, Object> body = new HashMap<>();
-        body.put("model", model);
-        body.put("messages", fullMessages);
+        String reply = chatClient.prompt()
+                .messages(fullMessages)
+                .call()
+                .content();
 
-        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
-
-        ResponseEntity<Map> response =
-                restTemplate.exchange(url, HttpMethod.POST, entity, Map.class);
-
-        List<Map<String, Object>> choices =
-                (List<Map<String, Object>>) response.getBody().get("choices");
-
-        if (choices != null && !choices.isEmpty()) {
-
-            Map<String, Object> firstMessage =
-                    (Map<String, Object>) choices.get(0).get("message");
-
-            String reply = (String) firstMessage.get("content");
-
-            // assistant 메시지 Redis 저장 (return 전에 반드시 저장)
-            chatHistoryService.addMessage(
-                    userId,
-                    new ChatMessageDTO("assistant", reply)
-            );
-
-            return new ChatResponseDTO(reply);
+        if (reply == null) {
+            return new ChatResponseDTO("응답 없음.");
         }
 
-        return new ChatResponseDTO("응답 없음.");
+        // assistant 메시지 Redis 저장 (return 전에 반드시 저장)
+        chatHistoryService.addMessage(
+                userId,
+                new ChatMessageDTO("assistant", reply)
+        );
+
+        return new ChatResponseDTO(reply);
+    }
+
+    private Message toMessage(String role, String content) {
+        return switch (role) {
+            case "system" -> new SystemMessage(content);
+            case "assistant" -> new AssistantMessage(content);
+            default -> new UserMessage(content);
+        };
     }
 }
