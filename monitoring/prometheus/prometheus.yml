@@ -1,0 +1,9 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: todoing-app
+    metrics_path: /actuator/prometheus
+    static_configs:
+      # 앱은 docker-compose 밖(호스트)에서 실행된다고 가정 — management 포트는 application-dev.yml 참고
+      - targets: ["host.docker.internal:8081"]

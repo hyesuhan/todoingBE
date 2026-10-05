@@ -59,6 +59,26 @@ spring:
         port: ${REDIS_PORT:6379}
 
 
+management:
+  server:
+    port: 8081 # 앱 포트(8080)와 분리 — actuator를 Security 필터체인 밖에 둬서 별도 인증 설정 없이 격리
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+  metrics:
+    tags:
+      application: todoing
+
 kakao:
   client_id: ${KAKAO_CLIENT_ID}
   redirect_uri: ${KAKAO_REDIRECT_URI}
