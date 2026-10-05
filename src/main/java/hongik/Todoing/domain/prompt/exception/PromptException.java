@@ -1,7 +1,7 @@
 package hongik.Todoing.domain.prompt.exception;
 
-import hongik.Todoing.global.apiPayload.code.BaseErrorCode;
-import hongik.Todoing.global.apiPayload.exception.GeneralException;
+import hongik.Todoing.infrastructure.apiPayload.code.BaseErrorCode;
+import hongik.Todoing.infrastructure.apiPayload.exception.GeneralException;
 
 public class PromptException extends GeneralException {
 

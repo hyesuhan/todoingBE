@@ -1,6 +1,6 @@
 package hongik.Todoing.domain.order.exception.orderException;
 
-import hongik.Todoing.global.apiPayload.exception.GeneralException;
+import hongik.Todoing.infrastructure.apiPayload.exception.GeneralException;
 
 public class OrderNotFoundException extends GeneralException {
 

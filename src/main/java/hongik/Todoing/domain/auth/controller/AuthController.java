@@ -1,19 +1,16 @@
 package hongik.Todoing.domain.auth.controller;
 
-import hongik.Todoing.domain.auth.converter.AuthConverter;
 import hongik.Todoing.domain.auth.dto.LoginRequestDTO;
 import hongik.Todoing.domain.auth.dto.SignUpRequestDto;
 import hongik.Todoing.domain.auth.service.AuthService;
 import hongik.Todoing.domain.jwt.JwtUtil;
 import hongik.Todoing.domain.jwt.dto.JwtDTO;
-import hongik.Todoing.domain.member.domain.User;
-import hongik.Todoing.global.apiPayload.ApiResponse;
-import hongik.Todoing.global.apiPayload.code.status.ErrorStatus;
-import hongik.Todoing.global.apiPayload.code.status.SuccessStatus;
-import hongik.Todoing.global.apiPayload.exception.GeneralException;
+import hongik.Todoing.infrastructure.apiPayload.ApiResponse;
+import hongik.Todoing.infrastructure.apiPayload.code.status.ErrorStatus;
+import hongik.Todoing.infrastructure.apiPayload.code.status.SuccessStatus;
+import hongik.Todoing.infrastructure.apiPayload.exception.GeneralException;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,7 +18,7 @@ import java.security.SignatureException;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/api/users")
+@RequestMapping("/api/auth")
 public class AuthController {
 
     private final JwtUtil jwtUtil;
@@ -42,6 +39,7 @@ public class AuthController {
         }
     }
 
+    /*
     @Operation(summary = "카카오톡으로 로그인합니다.")
     @GetMapping("/login/kakao")
     public ApiResponse<?> kakaoLogin(@RequestParam("code") String accessCode, HttpServletResponse response) {
@@ -50,6 +48,7 @@ public class AuthController {
         String accessToken = response.getHeader("Authorization");
         return ApiResponse.onSuccess(AuthConverter.JoinResponse(user, accessToken));
     }
+     */
 
     // 로그인
     @Operation(summary = "일반 로그인합니다.")

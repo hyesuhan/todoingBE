@@ -1,7 +1,7 @@
 package hongik.Todoing.domain.order.domain.pass;
 
 import hongik.Todoing.domain.order.exception.passException.PassTypeMisMatchException;
-import hongik.Todoing.global.apiPayload.exception.GeneralException;
+import hongik.Todoing.infrastructure.apiPayload.exception.GeneralException;
 import lombok.Getter;
 
 @Getter

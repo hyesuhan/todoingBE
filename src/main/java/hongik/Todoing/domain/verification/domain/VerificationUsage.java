@@ -1,6 +1,6 @@
 package hongik.Todoing.domain.verification.domain;
 
-import hongik.Todoing.global.common.BaseEntity;
+import hongik.Todoing.infrastructure.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;

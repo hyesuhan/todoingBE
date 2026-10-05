@@ -8,10 +8,11 @@ import hongik.Todoing.domain.auth.util.KakaoUtil;
 import hongik.Todoing.domain.auth.dto.KakaoDTO;
 import hongik.Todoing.domain.jwt.dto.JwtDTO;
 import hongik.Todoing.domain.member.domain.Role;
+import hongik.Todoing.domain.member.domain.Status;
 import hongik.Todoing.domain.member.domain.User;
 import hongik.Todoing.domain.member.repository.MemberRepository;
-import hongik.Todoing.global.apiPayload.code.status.ErrorStatus;
-import hongik.Todoing.global.apiPayload.exception.GeneralException;
+import hongik.Todoing.infrastructure.apiPayload.code.status.ErrorStatus;
+import hongik.Todoing.infrastructure.apiPayload.exception.GeneralException;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -57,6 +58,10 @@ public class AuthService {
         User user = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new GeneralException(ErrorStatus.MEMBER_NOT_FOUND));
 
+        if (user.getStatus() == Status.WITHDRAWN) {
+            throw new GeneralException(ErrorStatus.USER_ALREADY_WITHDRAWN);
+        }
+
         if(!passwordEncoder.matches(password, user.getPassword())) {
             throw new GeneralException(ErrorStatus.INVALID_PASSWORD);
         }
@@ -72,20 +77,18 @@ public class AuthService {
     }
 
     public void signUpByEmail(SignUpRequestDto request) {
-        // 이메일 중복 체크
-        if(memberRepository.existsByEmail(request.getEmail())) {
-            throw new GeneralException(ErrorStatus.EMAIL_DUPLICATED);
+
+        if(memberRepository.existsByEmailAndNickname(request.getEmail(), request.getNickname())) {
+            throw new GeneralException(ErrorStatus.EMAIL_NICKNAME_DUPLICATED);
         }
 
         // 비밀번호 암호화
         String encodedPassword = passwordEncoder.encode(request.getPassword());
 
         // Member 생성
-        User user = User.create(request.getName(), request.getEmail(), encodedPassword, Role.USER);
+        User user = User.create(request.getNickname(), request.getEmail(), encodedPassword, Role.USER);
 
         memberRepository.save(user);
-
-        // 자동 로그인 안 함
 
     }
 }

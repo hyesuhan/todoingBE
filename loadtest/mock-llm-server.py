@@ -21,6 +21,8 @@ class Handler(BaseHTTPRequestHandler):
         content_length = int(self.headers.get("Content-Length", 0))
         self.rfile.read(content_length)  # 요청 바디는 안 씀, 그냥 비움
 
+        print(f"received at {time.time()}", flush=True)  # trouble-shooting/10 버스트 간격 측정용
+
         time.sleep(DELAY_SECONDS)
 
         body = json.dumps({

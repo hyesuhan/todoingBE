@@ -6,7 +6,7 @@ import hongik.Todoing.domain.order.dto.order.response.KakaoApprovePayload;
 import hongik.Todoing.domain.order.dto.order.response.KakaoApproveResponse;
 import hongik.Todoing.domain.order.dto.order.response.KakaoReadyPayload;
 import hongik.Todoing.domain.order.dto.order.response.KakaoReadyResponse;
-import hongik.Todoing.global.config.PaymentsProperties;
+import hongik.Todoing.infrastructure.config.PaymentsProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;

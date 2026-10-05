@@ -1,8 +1,8 @@
 package hongik.Todoing.domain.friend.dto;
 
 import hongik.Todoing.domain.friend.domain.FriendStatus;
-import hongik.Todoing.global.apiPayload.code.status.ErrorStatus;
-import hongik.Todoing.global.apiPayload.exception.GeneralException;
+import hongik.Todoing.infrastructure.apiPayload.code.status.ErrorStatus;
+import hongik.Todoing.infrastructure.apiPayload.exception.GeneralException;
 
 public record FriendResponseDTO(Long id, String friendName, FriendStatus status) {
     public FriendResponseDTO {

@@ -3,7 +3,7 @@ import hongik.Todoing.domain.aiChat.dto.ChatMessageDTO;
 import hongik.Todoing.domain.aiChat.dto.request.ChatRequestDTO;
 import hongik.Todoing.domain.aiChat.dto.response.ChatResponseDTO;
 import hongik.Todoing.domain.aiChat.dto.ChatSessionState;
-import hongik.Todoing.global.prompt.SystemPromptLoader;
+import hongik.Todoing.infrastructure.prompt.SystemPromptLoader;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;

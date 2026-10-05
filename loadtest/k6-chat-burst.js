@@ -38,6 +38,7 @@ const e2eLatency = new Trend('chat_e2e_latency_ms', true);
 
 export function setup() {
   const tokens = [];
+  const sessionIds = [];
 
   for (let i = 1; i <= VUS; i++) {
     const email = `k6load-${RUN_ID}-${i}@loadtest.local`;
@@ -64,7 +65,7 @@ export function setup() {
       throw new Error(`로그인 실패 (VU ${i}): ${loginRes.status} ${loginRes.body}`);
     }
 
-    http.post(
+    const settingRes = http.post(
       `${BASE_URL}/chat/setting`,
       JSON.stringify({
         category: '운동',
@@ -75,14 +76,22 @@ export function setup() {
       { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } }
     );
 
+    const settingBody = JSON.parse(settingRes.body);
+    const sessionId = settingBody && settingBody.result && settingBody.result.sessionId;
+    if (!sessionId) {
+      throw new Error(`세션 생성 실패 (VU ${i}): ${settingRes.status} ${settingRes.body}`);
+    }
+
     tokens.push(token);
+    sessionIds.push(sessionId);
   }
 
-  return { tokens };
+  return { tokens, sessionIds };
 }
 
 export default function (data) {
   const token = data.tokens[__VU - 1];
+  const sessionId = data.sessionIds[__VU - 1];
   const authHeaders = {
     headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
   };
@@ -90,7 +99,7 @@ export default function (data) {
   const t0 = Date.now();
 
   const sendRes = http.post(
-    `${BASE_URL}/chat/message`,
+    `${BASE_URL}/chat/${sessionId}/message`,
     JSON.stringify({ messages: [{ role: 'user', content: `안녕, 나는 VU ${__VU}` }] }),
     authHeaders
   );
@@ -102,7 +111,7 @@ export default function (data) {
 
   while (Date.now() < deadline) {
     sleep(POLL_INTERVAL_S);
-    const pollRes = http.get(`${BASE_URL}/chat/result`, authHeaders);
+    const pollRes = http.get(`${BASE_URL}/chat/${sessionId}/result`, authHeaders);
     const body = JSON.parse(pollRes.body);
     if (body && body.result) {
       result = body.result;

@@ -3,7 +3,7 @@ package hongik.Todoing.domain.jwt;
 import hongik.Todoing.domain.auth.util.PrincipalDetails;
 import hongik.Todoing.domain.member.domain.User;
 import hongik.Todoing.domain.member.service.MemberCacheService;
-import hongik.Todoing.global.apiPayload.exception.GeneralException;
+import hongik.Todoing.infrastructure.apiPayload.exception.GeneralException;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

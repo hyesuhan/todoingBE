@@ -2,8 +2,8 @@ package hongik.Todoing.domain.auth.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hongik.Todoing.domain.auth.dto.KakaoDTO;
-import hongik.Todoing.global.apiPayload.code.status.ErrorStatus;
-import hongik.Todoing.global.apiPayload.exception.GeneralException;
+import hongik.Todoing.infrastructure.apiPayload.code.status.ErrorStatus;
+import hongik.Todoing.infrastructure.apiPayload.exception.GeneralException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

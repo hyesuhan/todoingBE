@@ -1,7 +1,7 @@
 package hongik.Todoing.domain.verification.exception;
 
-import hongik.Todoing.global.apiPayload.code.BaseErrorCode;
-import hongik.Todoing.global.apiPayload.code.errorDto.ErrorReasonDTO;
+import hongik.Todoing.infrastructure.apiPayload.code.BaseErrorCode;
+import hongik.Todoing.infrastructure.apiPayload.code.errorDto.ErrorReasonDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;

@@ -1,7 +1,7 @@
 package hongik.Todoing.domain.order.domain.pass;
 
 import hongik.Todoing.domain.order.validator.PassValidator;
-import hongik.Todoing.global.common.BaseEntity;
+import hongik.Todoing.infrastructure.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
