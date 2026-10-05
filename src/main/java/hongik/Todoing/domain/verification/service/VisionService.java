@@ -2,7 +2,7 @@ package hongik.Todoing.domain.verification.service;
 
 import com.google.cloud.vision.v1.*;
 import com.google.protobuf.ByteString;
-import hongik.Todoing.global.common.AuditingAi.AuditingAI;
+import hongik.Todoing.infrastructure.aop.AuditingAi.AuditingAI;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;

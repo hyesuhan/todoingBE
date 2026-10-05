@@ -3,34 +3,29 @@ import hongik.Todoing.domain.aiChat.dto.ChatMessageDTO;
 import hongik.Todoing.domain.aiChat.dto.request.ChatRequestDTO;
 import hongik.Todoing.domain.aiChat.dto.response.ChatResponseDTO;
 import hongik.Todoing.domain.aiChat.dto.ChatSessionState;
-import hongik.Todoing.global.prompt.SystemPromptLoader;
+import hongik.Todoing.infrastructure.prompt.SystemPromptLoader;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class OpenAiService {
 
     private final ChatClient chatClient;
     private final ChatSessionService sessionService;
     private final SystemPromptLoader systemPromptLoader;
     private final ChatHistoryService chatHistoryService;
-
-    public OpenAiService(ChatClient.Builder chatClientBuilder,
-                          ChatSessionService sessionService,
-                          SystemPromptLoader systemPromptLoader,
-                          ChatHistoryService chatHistoryService) {
-        this.chatClient = chatClientBuilder.build();
-        this.sessionService = sessionService;
-        this.systemPromptLoader = systemPromptLoader;
-        this.chatHistoryService = chatHistoryService;
-    }
 
     public ChatResponseDTO ask(String userId, List<ChatRequestDTO.Message> messages) {
 
@@ -53,7 +48,13 @@ public class OpenAiService {
                 session.getEndDate()
         )));
 
-        // 4. 이전 대화
+        // 3-1. 오래된 대화 요약(있으면) - trouble-shooting/08 Action B
+        String summary = chatHistoryService.getSummary(userId);
+        if (summary != null && !summary.isBlank()) {
+            fullMessages.add(new SystemMessage("이전 대화 요약: " + summary));
+        }
+
+        // 4. 최근 대화 원문
         List<Object> historyList = chatHistoryService.getHistory(userId);
         if (historyList != null) {
             for (Object h : historyList) {
@@ -75,10 +76,19 @@ public class OpenAiService {
             );
         }
 
-        String reply = chatClient.prompt()
+        ChatResponse chatResponse = chatClient.prompt()
                 .messages(fullMessages)
                 .call()
-                .content();
+                .chatResponse();
+
+        if (chatResponse != null && chatResponse.getMetadata() != null && chatResponse.getMetadata().getUsage() != null) {
+            var usage = chatResponse.getMetadata().getUsage();
+            log.info("토큰 사용량 key={}, historySize={}, promptTokens={}, completionTokens={}",
+                    userId, historyList == null ? 0 : historyList.size(),
+                    usage.getPromptTokens(), usage.getCompletionTokens());
+        }
+
+        String reply = chatResponse == null ? null : chatResponse.getResult().getOutput().getText();
 
         if (reply == null) {
             return new ChatResponseDTO("응답 없음.");

@@ -1,7 +1,7 @@
 package hongik.Todoing.domain.todo.domain;
 
 import hongik.Todoing.domain.todoReply.domain.TodoReply;
-import hongik.Todoing.global.common.BaseEntity;
+import hongik.Todoing.infrastructure.entity.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;

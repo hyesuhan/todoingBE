@@ -1,8 +1,8 @@
 package hongik.Todoing.domain.member.domain;
 
 import hongik.Todoing.domain.friend.domain.Friend;
-import hongik.Todoing.global.apiPayload.code.status.ErrorStatus;
-import hongik.Todoing.global.apiPayload.exception.GeneralException;
+import hongik.Todoing.infrastructure.apiPayload.code.status.ErrorStatus;
+import hongik.Todoing.infrastructure.apiPayload.exception.GeneralException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -13,7 +13,13 @@ import java.util.List;
 @Entity
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "`user`")
+@Table(
+        name = "`user`",
+        indexes = {@Index(
+                name = "idx_user_email_status",
+                columnList = "email, status"
+        )}
+)
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

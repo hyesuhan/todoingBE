@@ -9,7 +9,7 @@ import hongik.Todoing.domain.aiChat.dto.response.ChatSessionSummaryDTO;
 import hongik.Todoing.domain.aiChat.dto.response.ChatSubmitResponseDTO;
 import hongik.Todoing.domain.aiChat.service.ChatDebounceService;
 import hongik.Todoing.domain.aiChat.service.ChatSessionService;
-import hongik.Todoing.global.apiPayload.ApiResponse;
+import hongik.Todoing.infrastructure.apiPayload.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

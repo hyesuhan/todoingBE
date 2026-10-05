@@ -42,6 +42,9 @@ dependencies {
 	implementation platform("org.springframework.ai:spring-ai-bom:2.0.0")
 	implementation 'org.springframework.ai:spring-ai-starter-model-openai'
 
+	// 대화 이력 토큰 예산 계산용(trouble-shooting/08 Action C)
+	implementation 'com.knuddels:jtokkit:1.1.0'
+
 
 
 

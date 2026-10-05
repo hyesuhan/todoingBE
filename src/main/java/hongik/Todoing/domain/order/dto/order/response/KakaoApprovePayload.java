@@ -1,8 +1,7 @@
 package hongik.Todoing.domain.order.dto.order.response;
 
 import hongik.Todoing.domain.order.domain.order.Order;
-import hongik.Todoing.global.config.PaymentsProperties;
-import lombok.Builder;
+import hongik.Todoing.infrastructure.config.PaymentsProperties;
 import lombok.Getter;
 
 import java.util.Map;

@@ -3,9 +3,9 @@ package hongik.Todoing.domain.jwt;
 import hongik.Todoing.domain.auth.util.PrincipalDetails;
 import hongik.Todoing.domain.auth.service.PrincipalDetailService;
 import hongik.Todoing.domain.jwt.dto.JwtDTO;
-import hongik.Todoing.global.apiPayload.code.status.ErrorStatus;
-import hongik.Todoing.global.apiPayload.exception.GeneralException;
-import hongik.Todoing.global.util.RedisUtil;
+import hongik.Todoing.infrastructure.apiPayload.code.status.ErrorStatus;
+import hongik.Todoing.infrastructure.apiPayload.exception.GeneralException;
+import hongik.Todoing.infrastructure.config.RedisUtil;
 import io.jsonwebtoken.Jwts;
 
 import jakarta.servlet.http.HttpServletRequest;

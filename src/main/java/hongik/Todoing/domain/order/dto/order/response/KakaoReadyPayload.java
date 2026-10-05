@@ -2,7 +2,7 @@ package hongik.Todoing.domain.order.dto.order.response;
 
 import hongik.Todoing.domain.order.domain.order.Order;
 import hongik.Todoing.domain.order.dto.order.request.KakaoReadyRequest;
-import hongik.Todoing.global.config.PaymentsProperties;
+import hongik.Todoing.infrastructure.config.PaymentsProperties;
 import lombok.Builder;
 import lombok.Getter;
 

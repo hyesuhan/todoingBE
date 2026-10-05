@@ -11,7 +11,7 @@ import hongik.Todoing.domain.todo.dto.response.TodoResponseDTO;
 import hongik.Todoing.domain.todo.facade.TodoUsecase;
 import hongik.Todoing.domain.todo.service.ChatTodoService;
 import hongik.Todoing.domain.todo.service.SelfTodoService;
-import hongik.Todoing.global.apiPayload.ApiResponse;
+import hongik.Todoing.infrastructure.apiPayload.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;

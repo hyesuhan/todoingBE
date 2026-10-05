@@ -7,7 +7,7 @@ import hongik.Todoing.domain.verification.dto.VerificationResponse;
 import hongik.Todoing.domain.verification.service.SpeechService;
 import hongik.Todoing.domain.verification.service.VerificationService;
 import hongik.Todoing.domain.verification.service.VisionService;
-import hongik.Todoing.global.apiPayload.ApiResponse;
+import hongik.Todoing.infrastructure.apiPayload.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

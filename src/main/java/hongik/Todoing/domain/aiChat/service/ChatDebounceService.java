@@ -9,12 +9,14 @@ import hongik.Todoing.domain.aiChat.store.ChatResultStore;
 import hongik.Todoing.domain.aiChat.util.ChatBufferManager;
 import hongik.Todoing.domain.aiChat.util.ChatDebounceTimerManager;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ChatDebounceService {
@@ -73,8 +75,19 @@ public class ChatDebounceService {
                 );
             }
 
+            // ✔ GPT 처리 스레드에서 예외가 나서 실패로 끝난 경우 (GptRequestEventHandler.buildErrorJson)
+            if (type.equals("error")) {
+                String content = root.get("content").asText();
+
+                return new ChatResultDTO(
+                        UUID.randomUUID().toString(),
+                        "error",
+                        content
+                );
+            }
+
         } catch (Exception e) {
-            System.out.println("JSON 파싱 오류: " + e.getMessage());
+            log.warn("결과 JSON 파싱 실패 key={}, raw={}", key, raw, e);
         }
 
         // ✔ JSON 파싱 실패 시 fallback

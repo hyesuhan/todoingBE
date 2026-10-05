@@ -9,8 +9,8 @@ import hongik.Todoing.domain.order.domain.pass.PassStatus;
 import hongik.Todoing.domain.order.validator.PassValidator;
 import hongik.Todoing.domain.todo.domain.Todo;
 import hongik.Todoing.domain.verification.Adaptor.VerificationAdaptor;
-import hongik.Todoing.global.apiPayload.code.status.ErrorStatus;
-import hongik.Todoing.global.apiPayload.exception.GeneralException;
+import hongik.Todoing.infrastructure.apiPayload.code.status.ErrorStatus;
+import hongik.Todoing.infrastructure.apiPayload.exception.GeneralException;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;

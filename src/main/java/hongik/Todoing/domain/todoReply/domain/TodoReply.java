@@ -2,7 +2,7 @@ package hongik.Todoing.domain.todoReply.domain;
 
 import hongik.Todoing.domain.member.domain.User;
 import hongik.Todoing.domain.todo.domain.Todo;
-import hongik.Todoing.global.common.BaseEntity;
+import hongik.Todoing.infrastructure.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
