@@ -53,7 +53,7 @@ docker-compose.yml
 *.tfstate
 *.tfstate.*
 .terraform.lock.hcl
-terraform.tfvars
+terraform/terraform.tfvars
 .env
 override.tf
 override.tf.json
@@ -66,11 +66,11 @@ override.tf.json
 id_rsa
 id_ed25519
 *known_hosts
-todoing-key
-todoing-key.pem
+terraform/todoing-key
+terraform/todoing-key.pem
 ubuntu@15.165.229.144
-todoing-key.pub
-variables.tf
+terraform/todoing-key.pub
+terraform/variables.tf
 
 
 ### docer ###
@@ -90,5 +90,9 @@ docs/
 ### superpowers (SDD workspace/ledger) ###
 .superpowers/
 
-
+### devOps ###
+terraform/todoing-key
+terraform/todoing-key.pub
+terraform/todoing-key.pem
+terraform/terraform.tfvars
 
