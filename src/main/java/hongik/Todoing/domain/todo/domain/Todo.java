@@ -1,6 +1,6 @@
 package hongik.Todoing.domain.todo.domain;
 
-import hongik.Todoing.domain.todoReply.domain.TodoReply;
+import hongik.Todoing.domain.todo.reply.domain.TodoReply;
 import hongik.Todoing.infrastructure.entity.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;

@@ -42,22 +42,89 @@ jobs:
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:${{ github.sha }} . # Docker 이미지 빌드
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:${{ github.sha }} # 빌드된 이미지를 AWS ECR에 업로드
 
+      # redis/prometheus/grafana는 docker-compose.prod.yml로 EC2에 같이 띄운다(postgres는 RDS를
+      # 쓰니 제외). 리포가 public이라 raw.githubusercontent.com에서 바로 받아올 수 있다 — main에
+      # 푸시될 때마다 최신 설정으로 다시 받아서 docker compose up -d(변경 없으면 그대로 유지).
+      - name: Deploy monitoring stack (redis/prometheus/grafana) to EC2
+        env:
+          EC2_INSTANCE_ID: ${{ secrets.EC2_INSTANCE_ID }}
+          GRAFANA_ADMIN_PASSWORD: ${{ secrets.GRAFANA_ADMIN_PASSWORD }}
+        run: |
+          RAW_BASE="https://raw.githubusercontent.com/${{ github.repository }}/${{ github.sha }}"
+          printf -v GRAFANA_ADMIN_PASSWORD_Q '%q' "$GRAFANA_ADMIN_PASSWORD"
+
+          REMOTE_SCRIPT="mkdir -p /home/ubuntu/monitoring/prometheus /home/ubuntu/monitoring/grafana/provisioning/datasources && \
+            curl -fsSL $RAW_BASE/docker-compose.prod.yml -o /home/ubuntu/docker-compose.prod.yml && \
+            curl -fsSL $RAW_BASE/monitoring/prometheus/prometheus.yml -o /home/ubuntu/monitoring/prometheus/prometheus.yml && \
+            curl -fsSL $RAW_BASE/monitoring/grafana/provisioning/datasources/datasource.yml -o /home/ubuntu/monitoring/grafana/provisioning/datasources/datasource.yml && \
+            cd /home/ubuntu && GRAFANA_ADMIN_PASSWORD=$GRAFANA_ADMIN_PASSWORD_Q docker compose -f docker-compose.prod.yml up -d"
+
+          PARAMETERS=$(jq -n --arg cmd "$REMOTE_SCRIPT" '{ commands: [$cmd] }')
+
+          aws ssm send-command \
+            --instance-ids "$EC2_INSTANCE_ID" \
+            --document-name "AWS-RunShellScript" \
+            --parameters "$PARAMETERS"
+
+      # 앱 컨테이너는 docker-compose 스택과 별개로 떠서, Redis에 접근하거나(Prometheus가 스크랩하도록)
+      # host.docker.internal(호스트 게이트웨이)을 거쳐 서로를 찾는다. REDIS_HOST 시크릿 값은
+      # "host.docker.internal"로 등록해야 한다(같은 EC2에서 docker-compose로 Redis를 띄우는 구성 기준).
       - name: Deploy to EC2 using SSM
         env:
-          REGISTRY: ${{ steps.login-ecr.outputs.registry }} # AWS ECR 레지스트리 주소
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+          EC2_INSTANCE_ID: ${{ secrets.EC2_INSTANCE_ID }}
+          RDS_ENDPOINT: ${{ secrets.RDS_ENDPOINT }}
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.RDS_PASSWORD }}
+          REDIS_HOST: ${{ secrets.REDIS_HOST }}
+          REDIS_PORT: ${{ secrets.REDIS_PORT }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          JWT_ACCESS_EXPIRE: ${{ secrets.JWT_ACCESS_EXPIRE }}
+          JWT_REFRESH_EXPIRE: ${{ secrets.JWT_REFRESH_EXPIRE }}
+          LLAMA_API_KEY: ${{ secrets.LLAMA_API_KEY }}
+          KAKAO_CLIENT_ID: ${{ secrets.KAKAO_CLIENT_ID }}
+          KAKAO_REDIRECT_URI: ${{ secrets.KAKAO_REDIRECT_URI }}
+          KAKAOPAY_CID: ${{ secrets.KAKAOPAY_CID }}
+          KAKAOPAY_SECRET_KEY: ${{ secrets.KAKAOPAY_SECRET_KEY }}
         run: |
-          aws ssm send-command \ # AWS Systems Manager(SSM)를 사용해 EC2에서 명령어 실행
-            --instance-ids ${{ secrets.EC2_INSTANCE_ID }} \ # 대상 EC2 인스턴스 ID
-            --document-name "AWS-RunShellScript" \ # EC2에서 실행할 명령어를 지정하는 AWS 문서
-            --parameters '{
-              "commands": [
-                "docker stop todoing-app || true", # 기존 실행 중인 컨테이너 중지 (없으면 무시)
-                "docker rm todoing-app || true", # 기존 컨테이너 삭제 (없으면 무시)
-                "aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{ steps.login-ecr.outputs.registry }}", # ECR 로그인
-                "docker run -d --name portfolio-app -p 8080:8080 \ # 새로운 컨테이너 실행
-                  -e JAVA_OPTS=-Xmx256m \ # JVM 메모리 옵션 설정 (최대 256MB)
-                  -e SPRING_DATASOURCE_URL=jdbc:mysql://${{ secrets.RDS_ENDPOINT }}/portfolio?useSSL=false\\&serverTimezone=Asia/Seoul\\&allowPublicKeyRetrieval=true \ # DB 연결 설정
-                  -e SPRING_DATASOURCE_PASSWORD=${{ secrets.RDS_PASSWORD }} \ # DB 비밀번호 설정
-                  '$REGISTRY'/'$ECR_REPOSITORY':'$GITHUB_SHA'"
-              ]
-            }'
+          # 비밀번호/시크릿 값에 $, ", ` 같은 셸 특수문자가 섞여 있어도 원격 셸에서 안전하게
+          # 재해석되도록 printf %q로 이스케이프한 뒤에만 docker 명령 문자열에 끼워넣는다.
+          SPRING_DATASOURCE_URL="jdbc:mysql://${RDS_ENDPOINT}/todoing?useSSL=false&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true"
+          for VAR in SPRING_DATASOURCE_URL DB_USERNAME DB_PASSWORD REDIS_HOST REDIS_PORT \
+                     JWT_SECRET JWT_ACCESS_EXPIRE JWT_REFRESH_EXPIRE LLAMA_API_KEY \
+                     KAKAO_CLIENT_ID KAKAO_REDIRECT_URI KAKAOPAY_CID KAKAOPAY_SECRET_KEY; do
+            printf -v "${VAR}_Q" '%q' "${!VAR}"
+          done
+
+          DOCKER_RUN_CMD="docker run -d --name todoing-app -p 8080:8080 -p 8081:8081 \
+            --add-host=host.docker.internal:host-gateway \
+            -e JAVA_OPTS=-Xmx256m \
+            -e SPRING_DATASOURCE_URL=$SPRING_DATASOURCE_URL_Q \
+            -e DB_USERNAME=$DB_USERNAME_Q \
+            -e DB_PASSWORD=$DB_PASSWORD_Q \
+            -e REDIS_HOST=$REDIS_HOST_Q \
+            -e REDIS_PORT=$REDIS_PORT_Q \
+            -e JWT_SECRET=$JWT_SECRET_Q \
+            -e JWT_ACCESS_EXPIRE=$JWT_ACCESS_EXPIRE_Q \
+            -e JWT_REFRESH_EXPIRE=$JWT_REFRESH_EXPIRE_Q \
+            -e LLAMA_API_KEY=$LLAMA_API_KEY_Q \
+            -e KAKAO_CLIENT_ID=$KAKAO_CLIENT_ID_Q \
+            -e KAKAO_REDIRECT_URI=$KAKAO_REDIRECT_URI_Q \
+            -e KAKAOPAY_CID=$KAKAOPAY_CID_Q \
+            -e KAKAOPAY_SECRET_KEY=$KAKAOPAY_SECRET_KEY_Q \
+            $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+
+          PARAMETERS=$(jq -n --arg cmd "$DOCKER_RUN_CMD" --arg registry "$REGISTRY" '{
+            commands: [
+              "docker stop todoing-app || true",
+              "docker rm todoing-app || true",
+              ("aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin " + $registry),
+              $cmd
+            ]
+          }')
+
+          aws ssm send-command \
+            --instance-ids "$EC2_INSTANCE_ID" \
+            --document-name "AWS-RunShellScript" \
+            --parameters "$PARAMETERS"

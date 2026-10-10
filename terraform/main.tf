@@ -204,6 +204,15 @@ resource "aws_instance" "app" {
               sudo systemctl start snap.amazon-ssm-agent.amazon-ssm-agent.service
               sudo systemctl enable snap.amazon-ssm-agent.amazon-ssm-agent.service
 
+              # 스왑 2GB 생성 — t3.micro(RAM 1GB)에서 Redis+Prometheus+Grafana+앱을 동시에
+              # 띄우면 메모리가 빠듯해서, 일시적 메모리 스파이크에 OOM killer가 바로 프로세스를
+              # 죽이지 않도록 여유를 둔다(지속적인 메모리 부족 자체를 없애주진 않음).
+              sudo fallocate -l 2G /swapfile
+              sudo chmod 600 /swapfile
+              sudo mkswap /swapfile
+              sudo swapon /swapfile
+              echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+
               # AWS CLI 설치
               sudo apt-get update
               sudo apt-get install -y unzip

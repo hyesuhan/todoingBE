@@ -1,7 +1,7 @@
 package hongik.Todoing.domain.aiChat.domain;
 
 
-import hongik.Todoing.domain.member.domain.User;
+import hongik.Todoing.domain.user.domain.User;
 import hongik.Todoing.infrastructure.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;

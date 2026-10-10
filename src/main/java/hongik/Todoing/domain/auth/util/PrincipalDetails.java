@@ -1,6 +1,6 @@
 package hongik.Todoing.domain.auth.util;
 
-import hongik.Todoing.domain.member.domain.User;
+import hongik.Todoing.domain.user.domain.User;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

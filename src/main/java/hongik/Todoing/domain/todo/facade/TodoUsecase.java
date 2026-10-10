@@ -1,9 +1,9 @@
 package hongik.Todoing.domain.todo.facade;
 
 
-import hongik.Todoing.domain.label.domain.Label;
-import hongik.Todoing.domain.label.repository.LabelRepository;
-import hongik.Todoing.domain.member.service.MemberService;
+import hongik.Todoing.domain.todo.label.domain.Label;
+import hongik.Todoing.domain.todo.label.repository.LabelRepository;
+import hongik.Todoing.domain.user.service.UserService;
 import hongik.Todoing.domain.todo.dto.request.TodoCreateRequestDTO;
 import hongik.Todoing.domain.todo.service.SelfTodoService;
 import hongik.Todoing.infrastructure.apiPayload.code.status.ErrorStatus;
@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class TodoUsecase {
 
     private final SelfTodoService  selfTodoService;
-    private final MemberService memberService;
+    private final UserService userService;
     private final LabelRepository labelRepository;
 
 

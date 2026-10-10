@@ -1,6 +1,6 @@
 package hongik.Todoing.domain.todo.dto.response;
 
-import hongik.Todoing.domain.label.domain.LabelType;
+import hongik.Todoing.domain.todo.label.domain.LabelType;
 
 import java.time.LocalDate;
 

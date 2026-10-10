@@ -1,8 +1,8 @@
 package hongik.Todoing.domain.todo.converter;
 
-import hongik.Todoing.domain.label.domain.Label;
-import hongik.Todoing.domain.label.domain.LabelType;
-import hongik.Todoing.domain.label.repository.LabelRepository;
+import hongik.Todoing.domain.todo.label.domain.Label;
+import hongik.Todoing.domain.todo.label.domain.LabelType;
+import hongik.Todoing.domain.todo.label.repository.LabelRepository;
 import hongik.Todoing.domain.todo.domain.Todo;
 import hongik.Todoing.domain.todo.dto.response.TodoResponseDTO;
 import lombok.RequiredArgsConstructor;

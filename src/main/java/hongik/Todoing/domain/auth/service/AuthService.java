@@ -3,14 +3,14 @@ package hongik.Todoing.domain.auth.service;
 import hongik.Todoing.domain.auth.converter.AuthConverter;
 import hongik.Todoing.domain.auth.dto.SignUpRequestDto;
 import hongik.Todoing.domain.auth.util.PrincipalDetails;
-import hongik.Todoing.domain.jwt.JwtUtil;
+import hongik.Todoing.domain.auth.jwt.JwtUtil;
 import hongik.Todoing.domain.auth.util.KakaoUtil;
 import hongik.Todoing.domain.auth.dto.KakaoDTO;
-import hongik.Todoing.domain.jwt.dto.JwtDTO;
-import hongik.Todoing.domain.member.domain.Role;
-import hongik.Todoing.domain.member.domain.Status;
-import hongik.Todoing.domain.member.domain.User;
-import hongik.Todoing.domain.member.repository.MemberRepository;
+import hongik.Todoing.domain.auth.jwt.dto.JwtDTO;
+import hongik.Todoing.domain.user.domain.Role;
+import hongik.Todoing.domain.user.domain.Status;
+import hongik.Todoing.domain.user.domain.User;
+import hongik.Todoing.domain.user.repository.UserRepository;
 import hongik.Todoing.infrastructure.apiPayload.code.status.ErrorStatus;
 import hongik.Todoing.infrastructure.apiPayload.exception.GeneralException;
 import jakarta.servlet.http.HttpServletResponse;
@@ -23,7 +23,7 @@ import org.springframework.stereotype.Service;
 public class AuthService {
 
     private final KakaoUtil kakaoUtil;
-    private final MemberRepository memberRepository;
+    private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
 
@@ -34,8 +34,8 @@ public class AuthService {
 
         String email = kakaoProfile.getKakao_account().getEmail();
 
-        User user = memberRepository.findByEmail(email)
-                .orElseGet(() -> createNewMember(kakaoProfile));
+        User user = userRepository.findByEmail(email)
+                .orElseGet(() -> createNewUser(kakaoProfile));
 
         String token = jwtUtil.createAccessToken(user.getEmail(), "ROLE_" + user.getRole().name());
         response.setHeader("Authorization", token);
@@ -43,19 +43,19 @@ public class AuthService {
         return user;
     }
 
-    private User createNewMember(KakaoDTO.KakaoProfile kakaoProfile) {
-        User newUser = AuthConverter.toMember(
+    private User createNewUser(KakaoDTO.KakaoProfile kakaoProfile) {
+        User newUser = AuthConverter.toUser(
                 kakaoProfile.getKakao_account().getEmail(),
                 kakaoProfile.getProperties().getNickname(),
                 "OAUTH",
                 passwordEncoder
         );
 
-        return memberRepository.save(newUser);
+        return userRepository.save(newUser);
     }
 
     public JwtDTO loginByEmail(String email, String password) {
-        User user = memberRepository.findByEmail(email)
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new GeneralException(ErrorStatus.MEMBER_NOT_FOUND));
 
         if (user.getStatus() == Status.WITHDRAWN) {
@@ -78,17 +78,17 @@ public class AuthService {
 
     public void signUpByEmail(SignUpRequestDto request) {
 
-        if(memberRepository.existsByEmailAndNickname(request.getEmail(), request.getNickname())) {
+        if(userRepository.existsByEmailAndNickname(request.getEmail(), request.getNickname())) {
             throw new GeneralException(ErrorStatus.EMAIL_NICKNAME_DUPLICATED);
         }
 
         // 비밀번호 암호화
         String encodedPassword = passwordEncoder.encode(request.getPassword());
 
-        // Member 생성
+        // User 생성
         User user = User.create(request.getNickname(), request.getEmail(), encodedPassword, Role.USER);
 
-        memberRepository.save(user);
+        userRepository.save(user);
 
     }
 }
