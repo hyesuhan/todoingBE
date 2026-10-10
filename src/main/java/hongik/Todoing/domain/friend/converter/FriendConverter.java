@@ -2,7 +2,7 @@ package hongik.Todoing.domain.friend.converter;
 
 import hongik.Todoing.domain.friend.domain.Friend;
 import hongik.Todoing.domain.friend.dto.FriendResponseDTO;
-import hongik.Todoing.domain.member.domain.User;
+import hongik.Todoing.domain.user.domain.User;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

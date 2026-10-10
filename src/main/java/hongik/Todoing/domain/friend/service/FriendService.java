@@ -5,8 +5,8 @@ import hongik.Todoing.domain.friend.domain.Friend;
 import hongik.Todoing.domain.friend.domain.FriendStatus;
 import hongik.Todoing.domain.friend.dto.FriendResponseDTO;
 import hongik.Todoing.domain.friend.repository.FriendRepository;
-import hongik.Todoing.domain.member.domain.User;
-import hongik.Todoing.domain.member.repository.MemberRepository;
+import hongik.Todoing.domain.user.domain.User;
+import hongik.Todoing.domain.user.repository.UserRepository;
 import hongik.Todoing.domain.todo.converter.TodoConverter;
 import hongik.Todoing.domain.todo.domain.Todo;
 import hongik.Todoing.domain.todo.dto.response.TodoResponseDTO;
@@ -23,7 +23,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FriendService {
 
-    private final MemberRepository memberRepository;
+    private final UserRepository userRepository;
     private final FriendRepository friendRepository;
     private final TodoRepository todoRepository;
     private final TodoConverter todoConverter;
@@ -31,7 +31,7 @@ public class FriendService {
     @Transactional
     public void addFriend(User me, String friendEmail) {
 
-        User target = memberRepository.findByEmail(friendEmail)
+        User target = userRepository.findByEmail(friendEmail)
                 .orElseThrow(() -> new GeneralException(ErrorStatus.MEMBER_NOT_FOUND));
 
         if (friendRepository.existsByUserAndFriend(me, target)) {
@@ -49,7 +49,7 @@ public class FriendService {
     }
 
     public void deleteFriend(User me, Long friendId) {
-        User target = memberRepository.findById(friendId)
+        User target = userRepository.findById(friendId)
                 .orElseThrow(() -> new GeneralException(ErrorStatus.MEMBER_NOT_FOUND));
 
         Friend friend = friendRepository.findByUserAndFriend(me, target);
@@ -59,7 +59,7 @@ public class FriendService {
     }
 
     public void blockFriend(User me, Long friendId) {
-        User target = memberRepository.findById(friendId)
+        User target = userRepository.findById(friendId)
                 .orElseThrow(() -> new GeneralException(ErrorStatus.MEMBER_NOT_FOUND));
 
         Friend friend = friendRepository.findByUserAndFriend(me, target);
@@ -68,7 +68,7 @@ public class FriendService {
     }
 
     public List<TodoResponseDTO> getFriendTodos(User me, Long friendId) {
-        User target = memberRepository.findById(friendId)
+        User target = userRepository.findById(friendId)
                 .orElseThrow(() -> new GeneralException(ErrorStatus.MEMBER_NOT_FOUND));
 
         Friend friend = friendRepository.findByUserAndFriend(me, target);

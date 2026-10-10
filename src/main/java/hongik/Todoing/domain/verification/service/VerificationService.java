@@ -1,9 +1,9 @@
 package hongik.Todoing.domain.verification.service;
 
 import com.google.cloud.vision.v1.EntityAnnotation;
-import hongik.Todoing.domain.label.domain.LabelType;
-import hongik.Todoing.domain.label.repository.LabelRepository;
-import hongik.Todoing.domain.member.domain.User;
+import hongik.Todoing.domain.todo.label.domain.LabelType;
+import hongik.Todoing.domain.todo.label.repository.LabelRepository;
+import hongik.Todoing.domain.user.domain.User;
 import hongik.Todoing.domain.order.adaptor.PassAdaptor;
 import hongik.Todoing.domain.order.domain.pass.Pass;
 import hongik.Todoing.domain.order.validator.PassValidator;

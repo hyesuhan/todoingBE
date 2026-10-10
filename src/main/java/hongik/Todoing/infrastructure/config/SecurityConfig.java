@@ -1,10 +1,10 @@
 package hongik.Todoing.infrastructure.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import hongik.Todoing.domain.jwt.JwtAuthenticationFilter;
-import hongik.Todoing.domain.jwt.JwtAuthorizationFilter;
-import hongik.Todoing.domain.jwt.JwtUtil;
-import hongik.Todoing.domain.member.service.MemberCacheService;
+import hongik.Todoing.domain.auth.jwt.JwtAuthenticationFilter;
+import hongik.Todoing.domain.auth.jwt.JwtAuthorizationFilter;
+import hongik.Todoing.domain.auth.jwt.JwtUtil;
+import hongik.Todoing.domain.user.service.UserCacheService;
 import hongik.Todoing.infrastructure.apiPayload.ApiResponse;
 import hongik.Todoing.infrastructure.apiPayload.code.status.ErrorStatus;
 import jakarta.servlet.http.HttpServletResponse;
@@ -30,7 +30,7 @@ public class SecurityConfig {
 
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JwtUtil jwtUtil;
-    private final MemberCacheService memberCacheService;
+    private final UserCacheService userCacheService;
 
     private final String[] allowedUrls = {
             "/login",
@@ -107,7 +107,7 @@ public class SecurityConfig {
         loginFilter.setFilterProcessesUrl("/login");
 
         // ✅ JWT 권한 필터 (모든 요청에 대해 accessToken 확인)
-        JwtAuthorizationFilter authorizationFilter = new JwtAuthorizationFilter(jwtUtil, memberCacheService);
+        JwtAuthorizationFilter authorizationFilter = new JwtAuthorizationFilter(jwtUtil, userCacheService);
 
         // 필터 순서 중요: 권한 필터는 로그인 필터보다 먼저 실행돼야 함
         http

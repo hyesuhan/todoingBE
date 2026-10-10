@@ -2,10 +2,10 @@ package hongik.Todoing.domain.todo.service;
 
 
 import hongik.Todoing.domain.aiChat.dto.ChatSessionState;
-import hongik.Todoing.domain.label.domain.Label;
-import hongik.Todoing.domain.label.domain.LabelType;
-import hongik.Todoing.domain.label.repository.LabelRepository;
-import hongik.Todoing.domain.member.domain.User;
+import hongik.Todoing.domain.todo.label.domain.Label;
+import hongik.Todoing.domain.todo.label.domain.LabelType;
+import hongik.Todoing.domain.todo.label.repository.LabelRepository;
+import hongik.Todoing.domain.user.domain.User;
 import hongik.Todoing.domain.todo.domain.Todo;
 import hongik.Todoing.domain.todo.dto.request.ChatTodoCreateRequestDTO;
 import hongik.Todoing.domain.todo.repository.TodoRepository;
