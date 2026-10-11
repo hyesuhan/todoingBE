@@ -34,10 +34,10 @@ public class SecurityConfig {
 
     private final String[] allowedUrls = {
             "/login",
-            "/api/users/login",
-            "/api/users/login/kakao",
-            "/api/users/signup",
-            "/api/users/reissue",
+            "/api/auth/login",
+            "/api/auth/login/kakao",
+            "/api/auth/signup",
+            "/api/auth/reissue",
             "/swagger-ui/**", "/swagger-resources/**", "/v3/api-docs/**",
             "/chat",
             // 아래 3개만 인증 없이 호출 가능한 테스트/원시 감지용 엔드포인트.
