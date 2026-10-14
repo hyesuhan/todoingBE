@@ -78,7 +78,10 @@ public class AuthService {
 
     public void signUpByEmail(SignUpRequestDto request) {
 
-        if(userRepository.existsByEmailAndNickname(request.getEmail(), request.getNickname())) {
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new GeneralException(ErrorStatus.EMAIL_DUPLICATED);
+        }
+        if (userRepository.existsByNickname(request.getNickname())) {
             throw new GeneralException(ErrorStatus.EMAIL_NICKNAME_DUPLICATED);
         }
 

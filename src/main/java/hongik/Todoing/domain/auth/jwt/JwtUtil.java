@@ -139,9 +139,12 @@ public class JwtUtil {
             log.info("[*] JWT Token not found");
             return null;
         }
-        log.info("[*] JWT Token found");
 
-        return authorizationHeader.split(" ")[1];
+        String token = authorizationHeader.substring("Bearer ".length()).trim();
+        if (token.isEmpty()) {
+            return null;
+        }
+        return token;
     }
 
     public boolean validateRefreshToken(String refreshToken) throws SignatureException {
@@ -150,8 +153,9 @@ public class JwtUtil {
         }
 
         String username = getUsername(refreshToken);
+        Object storedToken = redisUtil.get(username);
 
-        if(!redisUtil.hasKey(username)) {
+        if (storedToken == null || !refreshToken.equals(storedToken)) {
             throw new GeneralException(ErrorStatus.INVALID_PARAMETER);
         }
         return true;

@@ -10,6 +10,7 @@ import hongik.Todoing.infrastructure.apiPayload.code.status.ErrorStatus;
 import hongik.Todoing.infrastructure.apiPayload.code.status.SuccessStatus;
 import hongik.Todoing.infrastructure.apiPayload.exception.GeneralException;
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -32,10 +33,10 @@ public class AuthController {
             return ApiResponse.onSuccess(
                     jwtUtil.reissueToken(refreshToken)
             );
-        } catch (SignatureException e) {
-            throw new RuntimeException(e);
         } catch (ExpiredJwtException e) {
-            throw  new GeneralException(ErrorStatus.TOKEN_EXPIRED);
+            throw new GeneralException(ErrorStatus.TOKEN_EXPIRED);
+        } catch (JwtException | SignatureException e) {
+            throw new GeneralException(ErrorStatus.INVALID_TOKEN);
         }
     }
 

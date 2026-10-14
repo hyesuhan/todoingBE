@@ -32,7 +32,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
         throws AuthenticationException {
 
-        System.out.println("JwtAuthenticationFilter: 로그인 시도 중");
+        log.info("[*] 로그인 시도 중");
         // 1. username, password 받아서
         ObjectMapper om =new ObjectMapper();
         LoginRequestDTO loginRequestDTO;
@@ -60,14 +60,11 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                                             FilterChain filterChain, Authentication authentication) throws IOException, ServletException {
         PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
 
-        log.info("[*] Login Success - Login with" + principalDetails.getUsername());
+        log.info("[*] Login Success - Login with {}", principalDetails.getUsername());
         JwtDTO jwtDTO = new JwtDTO(
                 jwtUtil.createJwtAccessToken(principalDetails),
                 jwtUtil.createJwtRefreshToken(principalDetails)
         );
-
-        log.info("Access token: " + jwtDTO.accessToken());
-        log.info("Refresh token: " + jwtDTO.refreshToken());
 
         ApiResponse<JwtDTO> apiResponse = ApiResponse.onSuccess(jwtDTO);
 

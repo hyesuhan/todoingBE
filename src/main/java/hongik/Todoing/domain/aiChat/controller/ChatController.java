@@ -10,6 +10,8 @@ import hongik.Todoing.domain.aiChat.dto.response.ChatSubmitResponseDTO;
 import hongik.Todoing.domain.aiChat.service.ChatDebounceService;
 import hongik.Todoing.domain.aiChat.service.ChatSessionService;
 import hongik.Todoing.infrastructure.apiPayload.ApiResponse;
+import hongik.Todoing.infrastructure.apiPayload.code.status.ErrorStatus;
+import hongik.Todoing.infrastructure.apiPayload.exception.GeneralException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -46,8 +48,13 @@ public class ChatController {
             @PathVariable String sessionId,
             @RequestBody ChatRequestDTO requestDTO) {
 
+        List<ChatRequestDTO.Message> messages = requestDTO.getMessages();
+        if (messages == null || messages.isEmpty()) {
+            throw new GeneralException(ErrorStatus.INVALID_PARAMETER);
+        }
+
         String key = principal.getUsername() + ":" + sessionId;
-        chatDebounceService.receiveUserMessage(key, requestDTO.getMessages().get(0));
+        chatDebounceService.receiveUserMessage(key, messages.get(0));
         return ApiResponse.onSuccess(ChatSubmitResponseDTO.of(sessionId));
 
     }

@@ -55,8 +55,6 @@ public class KakaoUtil {
 
         try {
             oAuthToken = om.readValue(response.getBody(), KakaoDTO.OAuthToken.class);
-
-            log.info("oAuthToken : " + oAuthToken.getAccess_token());
         } catch (Exception e) {
             log.error("Error parsing Kakao OAuth token response", e);
         }

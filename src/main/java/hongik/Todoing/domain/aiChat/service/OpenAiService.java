@@ -63,16 +63,16 @@ public class OpenAiService {
             }
         }
 
-        // 5. 유저 메세지 추가
+        // 5. 유저 메세지 추가 — role은 클라이언트가 보내지만 신뢰하지 않고 항상 user로 취급한다 (프롬프트 인젝션 방지)
         for (ChatRequestDTO.Message msg : messages) {
-            fullMessages.add(toMessage(msg.getRole(), msg.getContent()));
+            fullMessages.add(new UserMessage(msg.getContent()));
         }
 
         // 6. 유저 메세지 chatHistory 세션에 저장
         for (ChatRequestDTO.Message msg : messages) {
             chatHistoryService.addMessage(
                     userId,
-                    new ChatMessageDTO(msg.getRole(), msg.getContent())
+                    new ChatMessageDTO("user", msg.getContent())
             );
         }
 
