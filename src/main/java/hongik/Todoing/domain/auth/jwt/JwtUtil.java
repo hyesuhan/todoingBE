@@ -1,7 +1,7 @@
 package hongik.Todoing.domain.auth.jwt;
 
-import hongik.Todoing.domain.auth.util.PrincipalDetails;
-import hongik.Todoing.domain.auth.service.PrincipalDetailService;
+import hongik.Todoing.domain.auth.security.PrincipalDetails;
+import hongik.Todoing.domain.auth.security.PrincipalDetailService;
 import hongik.Todoing.domain.auth.jwt.dto.JwtDTO;
 import hongik.Todoing.infrastructure.apiPayload.code.status.ErrorStatus;
 import hongik.Todoing.infrastructure.apiPayload.exception.GeneralException;

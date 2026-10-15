@@ -52,7 +52,7 @@ public class AuthController {
         User user = authService.loginByOAuth(accessCode, response);
 
         String accessToken = response.getHeader("Authorization");
-        return ApiResponse.onSuccess(AuthConverter.JoinResponse(user, accessToken));
+        return ApiResponse.onSuccess(KakaoLoginResponseDto.of(user, accessToken));
     }
      */
 

@@ -1,10 +1,9 @@
 package hongik.Todoing.domain.auth.service;
 
-import hongik.Todoing.domain.auth.converter.AuthConverter;
 import hongik.Todoing.domain.auth.dto.SignUpRequestDto;
-import hongik.Todoing.domain.auth.util.PrincipalDetails;
+import hongik.Todoing.domain.auth.security.PrincipalDetails;
 import hongik.Todoing.domain.auth.jwt.JwtUtil;
-import hongik.Todoing.domain.auth.util.KakaoUtil;
+import hongik.Todoing.domain.auth.adaptor.KakaoAdaptor;
 import hongik.Todoing.domain.auth.dto.KakaoDTO;
 import hongik.Todoing.domain.auth.jwt.dto.JwtDTO;
 import hongik.Todoing.domain.user.domain.Role;
@@ -24,7 +23,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AuthService {
 
-    private final KakaoUtil kakaoUtil;
+    private final KakaoAdaptor kakaoAdaptor;
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
@@ -33,8 +32,8 @@ public class AuthService {
 
 
     public User loginByOAuth(String accessCode, HttpServletResponse response) {
-        KakaoDTO.OAuthToken oAuthToken = kakaoUtil.requestToken(accessCode);
-        KakaoDTO.KakaoProfile kakaoProfile= kakaoUtil.requestProfile(oAuthToken);
+        KakaoDTO.OAuthToken oAuthToken = kakaoAdaptor.requestToken(accessCode);
+        KakaoDTO.KakaoProfile kakaoProfile= kakaoAdaptor.requestProfile(oAuthToken);
 
         String email = kakaoProfile.getKakao_account().getEmail();
 
@@ -48,11 +47,11 @@ public class AuthService {
     }
 
     private User createNewUser(KakaoDTO.KakaoProfile kakaoProfile) {
-        User newUser = AuthConverter.toUser(
-                kakaoProfile.getKakao_account().getEmail(),
+        User newUser = User.create(
                 kakaoProfile.getProperties().getNickname(),
-                "OAUTH",
-                passwordEncoder
+                kakaoProfile.getKakao_account().getEmail(),
+                passwordEncoder.encode("OAUTH"),
+                Role.USER
         );
 
         return userRepository.save(newUser);

@@ -2,7 +2,7 @@ package hongik.Todoing.domain.auth.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hongik.Todoing.domain.auth.jwt.dto.JwtDTO;
-import hongik.Todoing.domain.auth.util.PrincipalDetails;
+import hongik.Todoing.domain.auth.security.PrincipalDetails;
 import hongik.Todoing.domain.auth.dto.LoginRequestDTO;
 import hongik.Todoing.infrastructure.apiPayload.ApiResponse;
 import jakarta.servlet.FilterChain;
