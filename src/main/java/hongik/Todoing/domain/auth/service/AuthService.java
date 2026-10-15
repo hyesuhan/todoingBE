@@ -15,9 +15,11 @@ import hongik.Todoing.infrastructure.apiPayload.code.status.ErrorStatus;
 import hongik.Todoing.infrastructure.apiPayload.exception.GeneralException;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -26,6 +28,8 @@ public class AuthService {
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
+    private final EmailVerificationQueryService emailVerificationQueryService;
+    private final EmailVerificationCommandService emailVerificationCommandService;
 
 
     public User loginByOAuth(String accessCode, HttpServletResponse response) {
@@ -78,6 +82,9 @@ public class AuthService {
 
     public void signUpByEmail(SignUpRequestDto request) {
 
+        if (!emailVerificationQueryService.isVerified(request.getEmail())) {
+            throw new GeneralException(ErrorStatus.EMAIL_NOT_VERIFIED);
+        }
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new GeneralException(ErrorStatus.EMAIL_DUPLICATED);
         }
@@ -93,5 +100,11 @@ public class AuthService {
 
         userRepository.save(user);
 
+        try {
+            emailVerificationCommandService.consumeVerification(request.getEmail());
+        } catch (Exception e) {
+            // verified 키는 TTL로 알아서 만료되므로, 가입 자체는 이미 성공한 상태로 처리한다
+            log.warn("[*] 회원가입 후 verified 키 삭제 실패 (email={})", request.getEmail(), e);
+        }
     }
 }

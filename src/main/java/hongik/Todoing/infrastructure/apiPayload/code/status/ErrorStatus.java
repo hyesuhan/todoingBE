@@ -12,6 +12,12 @@ public enum ErrorStatus implements BaseErrorCode {
     // AUTH
     EMAIL_NICKNAME_DUPLICATED(HttpStatus.BAD_REQUEST, "AUTH_001", "사용불가한 이메일이나 닉네임입니다."),
     USER_ALREADY_WITHDRAWN(HttpStatus.BAD_REQUEST, "AUTH_002", "이미 탈퇴한 회원입니다."),
+    EMAIL_NOT_VERIFIED(HttpStatus.BAD_REQUEST, "AUTH_003", "이메일 인증이 완료되지 않았습니다."),
+    EMAIL_CODE_EXPIRED(HttpStatus.BAD_REQUEST, "AUTH_004", "인증번호가 만료되었거나 발송되지 않았습니다."),
+    EMAIL_CODE_MISMATCH(HttpStatus.BAD_REQUEST, "AUTH_005", "인증번호가 일치하지 않습니다."),
+    EMAIL_SEND_TOO_FREQUENT(HttpStatus.TOO_MANY_REQUESTS, "AUTH_006", "인증번호는 1분 뒤에 다시 보낼 수 있습니다."),
+    EMAIL_SEND_DAILY_LIMIT_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "AUTH_007", "오늘 인증번호 발송 한도를 초과했습니다."),
+    EMAIL_SEND_FAILED(HttpStatus.SERVICE_UNAVAILABLE, "AUTH_008", "인증번호 발송에 실패했습니다."),
 
 
     // 400 BAD_REQUEST
