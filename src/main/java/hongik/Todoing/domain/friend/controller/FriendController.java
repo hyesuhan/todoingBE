@@ -1,6 +1,6 @@
 package hongik.Todoing.domain.friend.controller;
 
-import hongik.Todoing.domain.auth.util.PrincipalDetails;
+import hongik.Todoing.domain.auth.security.PrincipalDetails;
 import hongik.Todoing.domain.friend.dto.FriendRequestDTO;
 import hongik.Todoing.domain.friend.dto.FriendResponseDTO;
 import hongik.Todoing.domain.friend.service.FriendService;

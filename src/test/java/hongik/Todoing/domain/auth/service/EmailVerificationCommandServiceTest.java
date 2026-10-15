@@ -1,13 +1,13 @@
 package hongik.Todoing.domain.auth.service;
 
 import hongik.Todoing.domain.auth.adaptor.EmailSenderAdaptor;
-import hongik.Todoing.domain.auth.exception.EmailSendFailedException;
 import hongik.Todoing.domain.user.repository.UserRepository;
 import hongik.Todoing.infrastructure.apiPayload.code.status.ErrorStatus;
 import hongik.Todoing.infrastructure.apiPayload.exception.GeneralException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -16,11 +16,9 @@ import org.springframework.data.redis.core.ValueOperations;
 import java.time.Duration;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -31,6 +29,7 @@ class EmailVerificationCommandServiceTest {
     private static final String CODE_KEY = "auth:email:code:" + EMAIL;
     private static final String DAILY_KEY = "auth:email:daily:" + EMAIL;
     private static final String VERIFIED_KEY = "auth:email:verified:" + EMAIL;
+    private static final String VERIFY_ATTEMPT_KEY = "auth:email:verify-attempt:" + EMAIL;
 
     @Mock
     private StringRedisTemplate redisTemplate;
@@ -84,23 +83,7 @@ class EmailVerificationCommandServiceTest {
     }
 
     @Test
-    void sendCode_whenAdaptorFails_shouldPropagateAndNotPersistAnyState() {
-        when(userRepository.existsByEmail(EMAIL)).thenReturn(false);
-        when(redisTemplate.hasKey(CODE_KEY)).thenReturn(false);
-        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
-        when(valueOperations.get(DAILY_KEY)).thenReturn(null);
-        doThrow(EmailSendFailedException.EXCEPTION)
-                .when(emailSenderAdaptor).sendVerificationCode(eq(EMAIL), anyString());
-
-        assertThatThrownBy(() -> emailVerificationCommandService.sendCode(EMAIL))
-                .isInstanceOf(EmailSendFailedException.class);
-
-        verify(valueOperations, never()).set(eq(CODE_KEY), anyString(), any(Duration.class));
-        verify(valueOperations, never()).increment(DAILY_KEY);
-    }
-
-    @Test
-    void sendCode_whenSuccessful_shouldStoreCodeAndIncrementDailyCount() {
+    void sendCode_whenSuccessful_shouldPersistBeforeHandingOffToAsyncSend() {
         when(userRepository.existsByEmail(EMAIL)).thenReturn(false);
         when(redisTemplate.hasKey(CODE_KEY)).thenReturn(false);
         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
@@ -111,6 +94,24 @@ class EmailVerificationCommandServiceTest {
 
         verify(valueOperations).set(eq(CODE_KEY), anyString(), eq(Duration.ofMinutes(1)));
         verify(redisTemplate).expire(DAILY_KEY, Duration.ofHours(24));
+
+        // 발송은 비동기라 결과를 기다릴 수 없으므로, 저장이 발송 호출보다 먼저 일어나야 함
+        InOrder inOrder = inOrder(valueOperations, emailSenderAdaptor);
+        inOrder.verify(valueOperations).set(eq(CODE_KEY), anyString(), eq(Duration.ofMinutes(1)));
+        inOrder.verify(emailSenderAdaptor).sendVerificationCode(eq(EMAIL), anyString());
+    }
+
+    @Test
+    void verifyCode_whenAttemptLimitExceeded_shouldThrowTooManyAttemptsWithoutReadingCode() {
+        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+        when(valueOperations.increment(VERIFY_ATTEMPT_KEY)).thenReturn(101L);
+
+        assertThatThrownBy(() -> emailVerificationCommandService.verifyCode(EMAIL, "123456"))
+                .isInstanceOf(GeneralException.class)
+                .extracting("code")
+                .isEqualTo(ErrorStatus.EMAIL_VERIFY_TOO_MANY_ATTEMPTS);
+
+        verify(valueOperations, org.mockito.Mockito.never()).get(CODE_KEY);
     }
 
     @Test
@@ -143,6 +144,7 @@ class EmailVerificationCommandServiceTest {
         emailVerificationCommandService.verifyCode(EMAIL, "123456");
 
         verify(redisTemplate).delete(CODE_KEY);
+        verify(redisTemplate).delete(VERIFY_ATTEMPT_KEY);
         verify(valueOperations).set(VERIFIED_KEY, "true", Duration.ofMinutes(5));
     }
 }

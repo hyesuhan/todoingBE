@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
+@Adaptor
 @RequiredArgsConstructor
 public class OrderAdaptor {
 

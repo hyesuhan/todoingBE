@@ -1,6 +1,6 @@
 package hongik.Todoing.domain.aiChat.controller;
 
-import hongik.Todoing.domain.auth.util.PrincipalDetails;
+import hongik.Todoing.domain.auth.security.PrincipalDetails;
 import hongik.Todoing.domain.aiChat.dto.request.ChatRequestDTO;
 import hongik.Todoing.domain.aiChat.dto.ChatSessionState;
 import hongik.Todoing.domain.aiChat.dto.response.ChatResultDTO;

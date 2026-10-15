@@ -1,7 +1,7 @@
 package hongik.Todoing.domain.verification.controller;
 
 import com.google.cloud.vision.v1.EntityAnnotation;
-import hongik.Todoing.domain.auth.util.PrincipalDetails;
+import hongik.Todoing.domain.auth.security.PrincipalDetails;
 import hongik.Todoing.domain.verification.dto.TextAnnotationDto;
 import hongik.Todoing.domain.verification.dto.VerificationResponse;
 import hongik.Todoing.domain.verification.service.SpeechService;

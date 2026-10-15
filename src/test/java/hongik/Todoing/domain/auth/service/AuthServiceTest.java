@@ -2,7 +2,7 @@ package hongik.Todoing.domain.auth.service;
 
 import hongik.Todoing.domain.auth.dto.SignUpRequestDto;
 import hongik.Todoing.domain.auth.jwt.JwtUtil;
-import hongik.Todoing.domain.auth.util.KakaoUtil;
+import hongik.Todoing.domain.auth.adaptor.KakaoAdaptor;
 import hongik.Todoing.domain.user.domain.User;
 import hongik.Todoing.domain.user.repository.UserRepository;
 import hongik.Todoing.infrastructure.apiPayload.code.status.ErrorStatus;
@@ -31,7 +31,7 @@ class AuthServiceTest {
     private static final String PASSWORD = "password";
 
     @Mock
-    private KakaoUtil kakaoUtil;
+    private KakaoAdaptor kakaoAdaptor;
     @Mock
     private UserRepository userRepository;
     @Mock
@@ -48,7 +48,7 @@ class AuthServiceTest {
     @BeforeEach
     void setUp() {
         authService = new AuthService(
-                kakaoUtil, userRepository, jwtUtil, passwordEncoder,
+                kakaoAdaptor, userRepository, jwtUtil, passwordEncoder,
                 emailVerificationQueryService, emailVerificationCommandService);
     }
 

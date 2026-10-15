@@ -1,6 +1,6 @@
 package hongik.Todoing.domain.user.controller;
 
-import hongik.Todoing.domain.auth.util.PrincipalDetails;
+import hongik.Todoing.domain.auth.security.PrincipalDetails;
 import hongik.Todoing.domain.user.domain.User;
 import hongik.Todoing.domain.user.dto.response.GetProfileDTO;
 import hongik.Todoing.domain.user.dto.response.UpdateProfileDTO;
