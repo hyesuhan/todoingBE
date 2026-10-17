@@ -8,11 +8,16 @@ import hongik.Todoing.domain.order.domain.order.Order;
 import hongik.Todoing.domain.order.domain.pass.ProductCode;
 import hongik.Todoing.domain.order.dto.order.request.KakaoReadyRequest;
 import hongik.Todoing.domain.order.dto.order.response.KakaoReadyResponse;
+import hongik.Todoing.domain.order.dto.order.response.OrderSummaryResponse;
 import hongik.Todoing.domain.order.validator.OrderValidator;
+import hongik.Todoing.infrastructure.apiPayload.code.status.ErrorStatus;
+import hongik.Todoing.infrastructure.apiPayload.exception.GeneralException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.List;
 
 @RequiredArgsConstructor
 @DomainService
@@ -57,6 +62,11 @@ public class OrderService {
         // 주문을 찾습니다.
         Order order = orderAdaptor.findByTid(tid);
 
+        // 본인 주문인지 확인합니다.
+        if (!order.getUserId().equals(userId)) {
+            throw new GeneralException(ErrorStatus.FORBIDDEN);
+        }
+
         // 주문 성공
         kakaoPayAdaptor.approve(order, pgToken);
 
@@ -83,5 +93,18 @@ public class OrderService {
         LocalDateTime now = LocalDateTime.now();
         order.refund(now);
         orderAdaptor.save(order);
+    }
+
+    public List<OrderSummaryResponse> getMyOrders(Long userId) {
+        return orderAdaptor.findByUserId(userId).stream()
+                .sorted(Comparator.comparing(Order::getCreatedAt).reversed())
+                .map(order -> new OrderSummaryResponse(
+                        order.getId(),
+                        order.getItemCode().getName(),
+                        order.getTotalAmount(),
+                        order.getOrderStatus().name(),
+                        order.getApprovedAt()
+                ))
+                .toList();
     }
 }

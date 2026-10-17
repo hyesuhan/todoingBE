@@ -1,6 +1,6 @@
 package hongik.Todoing.domain.auth.jwt;
 
-import hongik.Todoing.domain.auth.util.PrincipalDetails;
+import hongik.Todoing.domain.auth.security.PrincipalDetails;
 import hongik.Todoing.domain.user.domain.User;
 import hongik.Todoing.domain.user.service.UserCacheService;
 import hongik.Todoing.infrastructure.apiPayload.exception.GeneralException;

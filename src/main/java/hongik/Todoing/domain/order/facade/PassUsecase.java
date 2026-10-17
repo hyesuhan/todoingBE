@@ -4,10 +4,14 @@ import hongik.Todoing.Common.annotation.UseCase;
 import hongik.Todoing.domain.order.domain.order.Order;
 import hongik.Todoing.domain.order.domain.pass.ProductCode;
 import hongik.Todoing.domain.order.dto.order.response.KakaoReadyResponse;
+import hongik.Todoing.domain.order.dto.pass.response.PassRemainingResponse;
+import hongik.Todoing.domain.order.dto.pass.response.PassUsageLogResponse;
 import hongik.Todoing.domain.order.service.OrderService;
 import hongik.Todoing.domain.order.service.PassService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @UseCase
 @RequiredArgsConstructor
@@ -18,9 +22,9 @@ public class PassUsecase {
 
     // 결제 준비 중
     @Transactional
-    public KakaoReadyResponse requestOrderPass(Long userId, ProductCode productCode, int quantity) {
+    public KakaoReadyResponse requestOrderPass(Long userId) {
         // 카카오페이 ready
-        return orderService.readyOrder(userId, productCode, quantity);
+        return orderService.readyOrder(userId, ProductCode.PASS_1, 1);
     }
 
     // 결제 완료
@@ -31,6 +35,19 @@ public class PassUsecase {
 
         // 패스 발급
         passService.createPass(userId, order);
+    }
+
+    @Transactional
+    public void consumePass(Long userId) {
+        passService.consumePass(userId);
+    }
+
+    public List<PassUsageLogResponse> getUsageHistory(Long userId) {
+        return passService.getUsageHistory(userId);
+    }
+
+    public PassRemainingResponse getRemainingCount(Long userId) {
+        return passService.getRemainingCount(userId);
     }
 
 }

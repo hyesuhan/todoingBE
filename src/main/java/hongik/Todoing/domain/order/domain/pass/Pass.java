@@ -84,4 +84,9 @@ public class Pass extends BaseEntity {
             return;
         }
     }
+
+    // 사용 여부와 무관하게 패스를 만료시킵니다 (주간 무료권 비누적 정책).
+    public void expire() {
+        this.status = PassStatus.EXPIRED;
+    }
 }

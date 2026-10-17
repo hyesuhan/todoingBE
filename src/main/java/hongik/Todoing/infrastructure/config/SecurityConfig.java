@@ -37,6 +37,8 @@ public class SecurityConfig {
             "/api/auth/login",
             "/api/auth/signup",
             "/api/auth/reissue",
+            "/api/auth/email/send-code",
+            "/api/auth/email/verify-code",
             "/swagger-ui/**", "/swagger-resources/**", "/v3/api-docs/**",
             "/chat",
             // 아래 3개만 인증 없이 호출 가능한 테스트/원시 감지용 엔드포인트.

@@ -1,4 +1,4 @@
-package hongik.Todoing.domain.auth.util;
+package hongik.Todoing.domain.auth.adaptor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hongik.Todoing.domain.auth.dto.KakaoDTO;
@@ -19,7 +19,7 @@ import org.springframework.web.client.RestTemplate;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class KakaoUtil {
+public class KakaoAdaptor {
 
     private final RestTemplate restTemplate;
 

@@ -6,9 +6,8 @@ import lombok.Getter;
 
 @Getter
 public enum ProductCode {
-    PASS_10("PASS10", "10회 이용권", 10, 8900),
-    PASS_20("PASS20", "20회 이용권", 20, 15900),
-    PASS_30("PASS30", "30회 이용권", 30, 21900);
+    PASS_1("PASS1", "1회 추가권", 1, 990),
+    FREE_WEEKLY("FREEW", "주간 무료 이용권", 1, 0);
 
     private final String code;
     private final String name;

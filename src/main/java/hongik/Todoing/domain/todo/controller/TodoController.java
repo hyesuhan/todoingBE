@@ -1,7 +1,7 @@
 package hongik.Todoing.domain.todo.controller;
 
 
-import hongik.Todoing.domain.auth.util.PrincipalDetails;
+import hongik.Todoing.domain.auth.security.PrincipalDetails;
 import hongik.Todoing.domain.aiChat.dto.ChatSessionState;
 import hongik.Todoing.domain.aiChat.service.ChatSessionService;
 import hongik.Todoing.domain.todo.dto.request.ChatTodoCreateRequestDTO;

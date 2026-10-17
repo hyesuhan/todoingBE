@@ -1,4 +1,4 @@
-package hongik.Todoing.domain.auth.util;
+package hongik.Todoing.domain.auth.security;
 
 import hongik.Todoing.domain.user.domain.User;
 import lombok.Getter;
