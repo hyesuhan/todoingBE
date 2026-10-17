@@ -2,8 +2,11 @@ services:
   redis:
     image: redis:7
     container_name: redis
+    command: redis-server --appendonly yes --save 60 1000
     ports:
       - "6379:6379"
+    volumes:
+      - redis_data:/data
     restart: always
 
   prometheus:
@@ -33,3 +36,4 @@ services:
 
 volumes:
   grafana_data:
+  redis_data:
