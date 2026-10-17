@@ -1,26 +1,30 @@
 package hongik.Todoing.domain.auth.service;
 
-import hongik.Todoing.domain.auth.adaptor.EmailSenderAdaptor;
 import hongik.Todoing.domain.user.repository.UserRepository;
 import hongik.Todoing.infrastructure.apiPayload.code.status.ErrorStatus;
 import hongik.Todoing.infrastructure.apiPayload.exception.GeneralException;
+import hongik.Todoing.infrastructure.config.EmailStreamConfig;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
 import java.time.Duration;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class EmailVerificationCommandService {
 
     private static final String CODE_PREFIX = "auth:email:code:";
+    private static final String COOLDOWN_PREFIX = "auth:email:cooldown:";
     private static final String DAILY_PREFIX = "auth:email:daily:";
     private static final String VERIFY_ATTEMPT_PREFIX = "auth:email:verify-attempt:";
     static final String VERIFIED_PREFIX = "auth:email:verified:";
 
-    private static final Duration CODE_TTL = Duration.ofMinutes(1);
+    // 발송 대기열(Redis Streams)에서 처리가 밀릴 수 있어 코드 TTL은 쿨다운보다 넉넉하게 둔다.
+    private static final Duration CODE_TTL = Duration.ofMinutes(10);
+    private static final Duration COOLDOWN_TTL = Duration.ofMinutes(1);
     private static final Duration VERIFIED_TTL = Duration.ofMinutes(5);
     private static final Duration DAILY_TTL = Duration.ofHours(24);
     private static final Duration VERIFY_ATTEMPT_WINDOW = Duration.ofMinutes(1);
@@ -29,7 +33,6 @@ public class EmailVerificationCommandService {
 
     private final StringRedisTemplate redisTemplate;
     private final UserRepository userRepository;
-    private final EmailSenderAdaptor emailSenderAdaptor;
     private final SecureRandom secureRandom = new SecureRandom();
 
     public void sendCode(String email) {
@@ -39,13 +42,13 @@ public class EmailVerificationCommandService {
 
         String code = generateCode();
 
-        // 발송이 비동기라 결과를 기다릴 수 없음 - 저장을 먼저 커밋하고 발송은 fire-and-forget.
-        // ponytail: 발송이 끝내 실패해도 이 코드/일일 카운트는 그대로 남는다. 재시도 없이는
-        // 사용자가 메일을 못 받고도 쿨다운/일일 한도를 소모한 상태가 됨 - email-race-condition.md 2번 참고.
         redisTemplate.opsForValue().set(CODE_PREFIX + email, code, CODE_TTL);
+        redisTemplate.opsForValue().set(COOLDOWN_PREFIX + email, "1", COOLDOWN_TTL);
         incrementDailyCount(email);
 
-        emailSenderAdaptor.sendVerificationCode(email, code);
+        // 발송은 Redis Streams에 적재만 하고 반환 - 별도 컨슈머(EmailStreamListener)가 처리.
+        // 앱이 재가동돼도 스트림에 남아있는 항목은 사라지지 않음(Redis AOF+RDB 전제).
+        redisTemplate.opsForStream().add(EmailStreamConfig.STREAM_KEY, Map.of("email", email, "code", code));
     }
 
     public void verifyCode(String email, String code) {
@@ -75,7 +78,7 @@ public class EmailVerificationCommandService {
     }
 
     private void validateNotTooFrequent(String email) {
-        if (Boolean.TRUE.equals(redisTemplate.hasKey(CODE_PREFIX + email))) {
+        if (Boolean.TRUE.equals(redisTemplate.hasKey(COOLDOWN_PREFIX + email))) {
             throw new GeneralException(ErrorStatus.EMAIL_SEND_TOO_FREQUENT);
         }
     }
