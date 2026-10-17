@@ -9,6 +9,7 @@ import hongik.Todoing.domain.aiChat.dto.response.ChatSessionSummaryDTO;
 import hongik.Todoing.domain.aiChat.dto.response.ChatSubmitResponseDTO;
 import hongik.Todoing.domain.aiChat.service.ChatDebounceService;
 import hongik.Todoing.domain.aiChat.service.ChatSessionService;
+import hongik.Todoing.domain.order.facade.PassUsecase;
 import hongik.Todoing.infrastructure.apiPayload.ApiResponse;
 import hongik.Todoing.infrastructure.apiPayload.code.status.ErrorStatus;
 import hongik.Todoing.infrastructure.apiPayload.exception.GeneralException;
@@ -28,10 +29,13 @@ public class ChatController {
 
     private final ChatSessionService chatSessionService;
     private final ChatDebounceService chatDebounceService;
+    private final PassUsecase passUsecase;
 
     @PostMapping("/setting")
     public ApiResponse<ChatSessionCreateResponseDTO> setting(@AuthenticationPrincipal PrincipalDetails principal,
                           @RequestBody ChatSessionState requestDTO){
+
+        passUsecase.consumePass(principal.getUser().getId());
 
         String sessionId = UUID.randomUUID().toString();
         String key = principal.getUsername() + ":" + sessionId;
