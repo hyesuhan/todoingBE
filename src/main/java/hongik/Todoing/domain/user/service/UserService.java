@@ -23,6 +23,11 @@ public class UserService {
     }
 
     @Transactional
+    public User save(User user) {
+        return userRepository.save(user);
+    }
+
+    @Transactional
     public void updateProfile(User user, UpdateProfileDTO request) {
         if(request.nickname() != null)
             user.updateNickname(request.nickname());
