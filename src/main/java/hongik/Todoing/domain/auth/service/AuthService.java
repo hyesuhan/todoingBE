@@ -9,7 +9,8 @@ import hongik.Todoing.domain.auth.jwt.dto.JwtDTO;
 import hongik.Todoing.domain.user.domain.Role;
 import hongik.Todoing.domain.user.domain.Status;
 import hongik.Todoing.domain.user.domain.User;
-import hongik.Todoing.domain.user.repository.UserRepository;
+import hongik.Todoing.domain.user.service.UserQueryService;
+import hongik.Todoing.domain.user.service.UserService;
 import hongik.Todoing.infrastructure.apiPayload.code.status.ErrorStatus;
 import hongik.Todoing.infrastructure.apiPayload.exception.GeneralException;
 import jakarta.servlet.http.HttpServletResponse;
@@ -24,7 +25,8 @@ import org.springframework.stereotype.Service;
 public class AuthService {
 
     private final KakaoAdaptor kakaoAdaptor;
-    private final UserRepository userRepository;
+    private final UserQueryService userQueryService;
+    private final UserService userService;
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
     private final EmailVerificationQueryService emailVerificationQueryService;
@@ -37,7 +39,7 @@ public class AuthService {
 
         String email = kakaoProfile.getKakao_account().getEmail();
 
-        User user = userRepository.findByEmail(email)
+        User user = userQueryService.findOptionalByEmail(email)
                 .orElseGet(() -> createNewUser(kakaoProfile));
 
         String token = jwtUtil.createAccessToken(user.getEmail(), "ROLE_" + user.getRole().name());
@@ -54,12 +56,11 @@ public class AuthService {
                 Role.USER
         );
 
-        return userRepository.save(newUser);
+        return userService.save(newUser);
     }
 
     public JwtDTO loginByEmail(String email, String password) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new GeneralException(ErrorStatus.MEMBER_NOT_FOUND));
+        User user = userQueryService.findByEmail(email);
 
         if (user.getStatus() == Status.WITHDRAWN) {
             throw new GeneralException(ErrorStatus.USER_ALREADY_WITHDRAWN);
@@ -84,10 +85,10 @@ public class AuthService {
         if (!emailVerificationQueryService.isVerified(request.getEmail())) {
             throw new GeneralException(ErrorStatus.EMAIL_NOT_VERIFIED);
         }
-        if (userRepository.existsByEmail(request.getEmail())) {
+        if (userQueryService.existsByEmail(request.getEmail())) {
             throw new GeneralException(ErrorStatus.EMAIL_DUPLICATED);
         }
-        if (userRepository.existsByNickname(request.getNickname())) {
+        if (userQueryService.existsByNickname(request.getNickname())) {
             throw new GeneralException(ErrorStatus.EMAIL_NICKNAME_DUPLICATED);
         }
 
@@ -97,7 +98,7 @@ public class AuthService {
         // User 생성
         User user = User.create(request.getNickname(), request.getEmail(), encodedPassword, Role.USER);
 
-        userRepository.save(user);
+        userService.save(user);
 
         try {
             emailVerificationCommandService.consumeVerification(request.getEmail());
