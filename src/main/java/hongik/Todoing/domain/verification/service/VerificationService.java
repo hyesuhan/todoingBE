@@ -4,8 +4,8 @@ import com.google.cloud.vision.v1.EntityAnnotation;
 import hongik.Todoing.domain.todo.label.domain.LabelType;
 import hongik.Todoing.domain.todo.label.repository.LabelRepository;
 import hongik.Todoing.domain.user.domain.User;
-import hongik.Todoing.domain.order.adaptor.PassAdaptor;
 import hongik.Todoing.domain.order.domain.pass.Pass;
+import hongik.Todoing.domain.order.repository.PassRepository;
 import hongik.Todoing.domain.order.validator.PassValidator;
 import hongik.Todoing.domain.todo.domain.Todo;
 import hongik.Todoing.domain.todo.repository.TodoRepository;
@@ -37,7 +37,7 @@ public class VerificationService {
     private final VerificationAdaptor verificationAdaptor;
     private final VerificationValidator verificationValidator;
     private final VisionService visionService;
-    private final PassAdaptor passAdaptor;
+    private final PassRepository passRepository;
     private final TodoRepository todoRepository;
     private final LabelRepository labelRepository;
     private final PassValidator passValidator;
@@ -157,7 +157,7 @@ public class VerificationService {
 
         // 5) PASS 차감 + 사용량 집계 (성공했을 때만)
         if (usePass && success) {
-            Pass pass = passAdaptor.findByUserId(user.getId())
+            Pass pass = passRepository.findByUserId(user.getId())
                     .stream()
                     .filter(p -> p.remainingCount() > 0)
                     .min((p1, p2) -> p1.getCreatedAt().compareTo(p2.getCreatedAt()))

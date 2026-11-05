@@ -2,9 +2,9 @@ package hongik.Todoing.domain.verification.validator;
 
 import hongik.Todoing.Common.annotation.Validator;
 import hongik.Todoing.domain.user.domain.User;
-import hongik.Todoing.domain.order.adaptor.PassAdaptor;
 import hongik.Todoing.domain.order.domain.pass.Pass;
 import hongik.Todoing.domain.order.domain.pass.PassStatus;
+import hongik.Todoing.domain.order.repository.PassRepository;
 import hongik.Todoing.domain.order.validator.PassValidator;
 import hongik.Todoing.domain.todo.domain.Todo;
 import hongik.Todoing.domain.verification.Adaptor.VerificationAdaptor;
@@ -20,7 +20,7 @@ public class VerificationValidator {
 
     private final VerificationAdaptor verificationAdaptor;
     private final PassValidator passValidator;
-    private final PassAdaptor passAdaptor;
+    private final PassRepository passRepository;
 
     //인증 가능한 투두인지 검증
     public void validVerification(User user, Todo todo) {
@@ -42,7 +42,7 @@ public class VerificationValidator {
 
         // 사용자의 이용권 검증
         // 유효한 Pass: 만료되지 않았고(현재는 필요 없음), 남은 인증 횟수가 1 이상
-        List<Pass> passes = passAdaptor.findByUserId(user.getId());
+        List<Pass> passes = passRepository.findByUserId(user.getId());
         if (passes == null || passes.isEmpty()) {
             throw new GeneralException(ErrorStatus.PASS_NOT_AVAILABLE);
         }
