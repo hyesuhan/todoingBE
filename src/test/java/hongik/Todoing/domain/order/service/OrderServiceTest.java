@@ -1,11 +1,11 @@
 package hongik.Todoing.domain.order.service;
 
 import hongik.Todoing.domain.order.adaptor.KakaoPayAdaptor;
-import hongik.Todoing.domain.order.adaptor.OrderAdaptor;
 import hongik.Todoing.domain.order.adaptor.OrderUuidGenerator;
 import hongik.Todoing.domain.order.domain.order.Order;
 import hongik.Todoing.domain.order.domain.pass.ProductCode;
 import hongik.Todoing.domain.order.dto.order.response.OrderSummaryResponse;
+import hongik.Todoing.domain.order.repository.OrderRepository;
 import hongik.Todoing.domain.order.validator.OrderValidator;
 import hongik.Todoing.infrastructure.apiPayload.code.status.ErrorStatus;
 import hongik.Todoing.infrastructure.apiPayload.exception.GeneralException;
@@ -18,6 +18,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -30,7 +31,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 @ExtendWith(MockitoExtension.class)
 class OrderServiceTest {
 
-    @Mock private OrderAdaptor orderAdaptor;
+    @Mock private OrderRepository orderRepository;
     @Mock private OrderValidator orderValidator;
     @Mock private OrderUuidGenerator uuidGenerator;
     @Mock private KakaoPayAdaptor kakaoPayAdaptor;
@@ -38,7 +39,7 @@ class OrderServiceTest {
 
     @BeforeEach
     void setUp() {
-        orderService = new OrderService(orderAdaptor, orderValidator, uuidGenerator, kakaoPayAdaptor);
+        orderService = new OrderService(orderRepository, orderValidator, uuidGenerator, kakaoPayAdaptor);
     }
 
     @Test
@@ -50,7 +51,7 @@ class OrderServiceTest {
         // @CreationTimestamp는 실제 영속화 시점에만 채워지므로, 단위 테스트에서는 직접 고정값을 넣어 정렬을 검증한다.
         ReflectionTestUtils.setField(older, "createdAt", LocalDateTime.of(2026, 10, 1, 0, 0));
         ReflectionTestUtils.setField(newer, "createdAt", LocalDateTime.of(2026, 10, 10, 0, 0));
-        when(orderAdaptor.findByUserId(1L)).thenReturn(List.of(older, newer));
+        when(orderRepository.findAllByUserId(1L)).thenReturn(List.of(older, newer));
 
         List<OrderSummaryResponse> result = orderService.getMyOrders(1L);
 
@@ -63,7 +64,7 @@ class OrderServiceTest {
     @Test
     void approveOrder_whenOrderBelongsToDifferentUser_shouldThrowForbiddenAndNotCallKakaoPay() {
         Order order = Order.createReady(1L, ProductCode.PASS_1, 1, "P1261017ABCDE", orderValidator);
-        when(orderAdaptor.findByTid("tid-1")).thenReturn(order);
+        when(orderRepository.findByTid("tid-1")).thenReturn(Optional.of(order));
 
         assertThatThrownBy(() -> orderService.approveOrder(2L, "tid-1", "pg-1"))
                 .isInstanceOf(GeneralException.class)
