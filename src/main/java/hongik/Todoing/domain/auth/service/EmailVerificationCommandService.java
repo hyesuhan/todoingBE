@@ -1,6 +1,6 @@
 package hongik.Todoing.domain.auth.service;
 
-import hongik.Todoing.domain.user.repository.UserRepository;
+import hongik.Todoing.domain.user.service.UserQueryService;
 import hongik.Todoing.infrastructure.apiPayload.code.status.ErrorStatus;
 import hongik.Todoing.infrastructure.apiPayload.exception.GeneralException;
 import hongik.Todoing.infrastructure.config.EmailStreamConfig;
@@ -32,7 +32,7 @@ public class EmailVerificationCommandService {
     private static final long VERIFY_ATTEMPT_LIMIT = 100;
 
     private final StringRedisTemplate redisTemplate;
-    private final UserRepository userRepository;
+    private final UserQueryService userQueryService;
     private final SecureRandom secureRandom = new SecureRandom();
 
     public void sendCode(String email) {
@@ -72,7 +72,7 @@ public class EmailVerificationCommandService {
     }
 
     private void validateNotRegistered(String email) {
-        if (userRepository.existsByEmail(email)) {
+        if (userQueryService.existsByEmail(email)) {
             throw new GeneralException(ErrorStatus.EMAIL_DUPLICATED);
         }
     }

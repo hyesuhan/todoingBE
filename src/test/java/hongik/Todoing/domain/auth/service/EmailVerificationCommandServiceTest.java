@@ -1,6 +1,6 @@
 package hongik.Todoing.domain.auth.service;
 
-import hongik.Todoing.domain.user.repository.UserRepository;
+import hongik.Todoing.domain.user.service.UserQueryService;
 import hongik.Todoing.infrastructure.apiPayload.code.status.ErrorStatus;
 import hongik.Todoing.infrastructure.apiPayload.exception.GeneralException;
 import hongik.Todoing.infrastructure.config.EmailStreamConfig;
@@ -41,19 +41,19 @@ class EmailVerificationCommandServiceTest {
     @Mock
     private StreamOperations<String, Object, Object> streamOperations;
     @Mock
-    private UserRepository userRepository;
+    private UserQueryService userQueryService;
 
     private EmailVerificationCommandService emailVerificationCommandService;
 
     @BeforeEach
     void setUp() {
         emailVerificationCommandService =
-                new EmailVerificationCommandService(redisTemplate, userRepository);
+                new EmailVerificationCommandService(redisTemplate, userQueryService);
     }
 
     @Test
     void sendCode_whenEmailAlreadyRegistered_shouldThrowEmailDuplicated() {
-        when(userRepository.existsByEmail(EMAIL)).thenReturn(true);
+        when(userQueryService.existsByEmail(EMAIL)).thenReturn(true);
 
         assertThatThrownBy(() -> emailVerificationCommandService.sendCode(EMAIL))
                 .isInstanceOf(GeneralException.class)
@@ -63,7 +63,7 @@ class EmailVerificationCommandServiceTest {
 
     @Test
     void sendCode_whenCooldownActive_shouldThrowTooFrequent() {
-        when(userRepository.existsByEmail(EMAIL)).thenReturn(false);
+        when(userQueryService.existsByEmail(EMAIL)).thenReturn(false);
         when(redisTemplate.hasKey(COOLDOWN_KEY)).thenReturn(true);
 
         assertThatThrownBy(() -> emailVerificationCommandService.sendCode(EMAIL))
@@ -74,7 +74,7 @@ class EmailVerificationCommandServiceTest {
 
     @Test
     void sendCode_whenDailyLimitReached_shouldThrowDailyLimitExceeded() {
-        when(userRepository.existsByEmail(EMAIL)).thenReturn(false);
+        when(userQueryService.existsByEmail(EMAIL)).thenReturn(false);
         when(redisTemplate.hasKey(COOLDOWN_KEY)).thenReturn(false);
         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
         when(valueOperations.get(DAILY_KEY)).thenReturn("5");
@@ -87,7 +87,7 @@ class EmailVerificationCommandServiceTest {
 
     @Test
     void sendCode_whenSuccessful_shouldPersistThenEnqueueToStream() {
-        when(userRepository.existsByEmail(EMAIL)).thenReturn(false);
+        when(userQueryService.existsByEmail(EMAIL)).thenReturn(false);
         when(redisTemplate.hasKey(COOLDOWN_KEY)).thenReturn(false);
         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
         when(redisTemplate.opsForStream()).thenReturn(streamOperations);
