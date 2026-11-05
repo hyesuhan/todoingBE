@@ -2,7 +2,6 @@ package hongik.Todoing.domain.order.service;
 
 import hongik.Todoing.Common.annotation.DomainService;
 import hongik.Todoing.domain.order.adaptor.PassAdaptor;
-import hongik.Todoing.domain.order.adaptor.PassUsageLogAdaptor;
 import hongik.Todoing.domain.order.domain.order.Order;
 import hongik.Todoing.domain.order.domain.pass.Pass;
 import hongik.Todoing.domain.order.domain.pass.PassStatus;
@@ -11,6 +10,7 @@ import hongik.Todoing.domain.order.dto.pass.response.GetPassInfoResponse;
 import hongik.Todoing.domain.order.dto.pass.response.PassRemainingResponse;
 import hongik.Todoing.domain.order.dto.pass.response.PassUsageLogResponse;
 import hongik.Todoing.domain.order.exception.passException.PassNotFoundException;
+import hongik.Todoing.domain.order.repository.PassUsageLogRepository;
 import hongik.Todoing.domain.order.validator.PassValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +26,7 @@ public class PassService {
 
     private final PassAdaptor passAdaptor;
     private final PassValidator passValidator;
-    private final PassUsageLogAdaptor passUsageLogAdaptor;
+    private final PassUsageLogRepository passUsageLogRepository;
 
     // 패스 생성
     @Transactional
@@ -78,13 +78,13 @@ public class PassService {
         pass.consume(userId, passValidator);
         pass.checkPassStatus();
 
-        passUsageLogAdaptor.save(PassUsageLog.of(userId, pass.getPassId(), pass.getProductCode()));
+        passUsageLogRepository.save(PassUsageLog.of(userId, pass.getPassId(), pass.getProductCode()));
 
         log.info("패스 소모: userId={}, passId={}, productCode={}", userId, pass.getPassId(), pass.getProductCode());
     }
 
     public List<PassUsageLogResponse> getUsageHistory(Long userId) {
-        return passUsageLogAdaptor.findByUserId(userId).stream()
+        return passUsageLogRepository.findAllByUserIdOrderByCreatedAtDesc(userId).stream()
                 .map(log -> new PassUsageLogResponse(
                         log.getId(), log.getProductCode().getName(), log.getCreatedAt()))
                 .toList();

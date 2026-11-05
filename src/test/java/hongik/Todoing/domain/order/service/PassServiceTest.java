@@ -1,7 +1,6 @@
 package hongik.Todoing.domain.order.service;
 
 import hongik.Todoing.domain.order.adaptor.PassAdaptor;
-import hongik.Todoing.domain.order.adaptor.PassUsageLogAdaptor;
 import hongik.Todoing.domain.order.domain.pass.Pass;
 import hongik.Todoing.domain.order.domain.pass.PassStatus;
 import hongik.Todoing.domain.order.domain.pass.PassUsageLog;
@@ -9,6 +8,7 @@ import hongik.Todoing.domain.order.domain.pass.ProductCode;
 import hongik.Todoing.domain.order.dto.pass.response.PassRemainingResponse;
 import hongik.Todoing.domain.order.dto.pass.response.PassUsageLogResponse;
 import hongik.Todoing.domain.order.exception.passException.PassNotFoundException;
+import hongik.Todoing.domain.order.repository.PassUsageLogRepository;
 import hongik.Todoing.domain.order.validator.PassValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,14 +29,14 @@ import static org.mockito.Mockito.when;
 class PassServiceTest {
 
     @Mock private PassAdaptor passAdaptor;
-    @Mock private PassUsageLogAdaptor passUsageLogAdaptor;
+    @Mock private PassUsageLogRepository passUsageLogRepository;
     private PassValidator passValidator;
     private PassService passService;
 
     @BeforeEach
     void setUp() {
         passValidator = new PassValidator(passAdaptor);
-        passService = new PassService(passAdaptor, passValidator, passUsageLogAdaptor);
+        passService = new PassService(passAdaptor, passValidator, passUsageLogRepository);
     }
 
     @Test
@@ -48,7 +48,7 @@ class PassServiceTest {
 
         assertThat(freePass.getUsedCount()).isEqualTo(1);
         // Pass.issue()로 만든 패스는 영속화 전이라 passId가 null — PassUsageLog에도 그대로 null로 기록된다.
-        verify(passUsageLogAdaptor).save(org.mockito.ArgumentMatchers.argThat(log ->
+        verify(passUsageLogRepository).save(org.mockito.ArgumentMatchers.argThat(log ->
                 log.getUserId().equals(1L)
                         && log.getPassId() == null
                         && log.getProductCode() == ProductCode.FREE_WEEKLY));
@@ -77,7 +77,7 @@ class PassServiceTest {
     @Test
     void getUsageHistory_shouldMapLogsToResponse() {
         PassUsageLog log = PassUsageLog.of(1L, 10L, ProductCode.FREE_WEEKLY);
-        when(passUsageLogAdaptor.findByUserId(1L)).thenReturn(List.of(log));
+        when(passUsageLogRepository.findAllByUserIdOrderByCreatedAtDesc(1L)).thenReturn(List.of(log));
 
         List<PassUsageLogResponse> result = passService.getUsageHistory(1L);
 
