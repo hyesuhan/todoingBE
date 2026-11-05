@@ -6,7 +6,7 @@ import hongik.Todoing.domain.aiChat.service.ChatDebounceService;
 import hongik.Todoing.domain.aiChat.service.ChatSessionService;
 import hongik.Todoing.domain.auth.security.PrincipalDetails;
 import hongik.Todoing.domain.order.exception.passException.PassNotFoundException;
-import hongik.Todoing.domain.order.facade.PassUsecase;
+import hongik.Todoing.domain.order.service.PassService;
 import hongik.Todoing.domain.user.domain.Role;
 import hongik.Todoing.domain.user.domain.User;
 import hongik.Todoing.infrastructure.apiPayload.ApiResponse;
@@ -28,14 +28,14 @@ class ChatControllerTest {
 
     @Mock private ChatSessionService chatSessionService;
     @Mock private ChatDebounceService chatDebounceService;
-    @Mock private PassUsecase passUsecase;
+    @Mock private PassService passService;
     private ChatController chatController;
     private PrincipalDetails principal;
     private ChatSessionState requestDTO;
 
     @BeforeEach
     void setUp() {
-        chatController = new ChatController(chatSessionService, chatDebounceService, passUsecase);
+        chatController = new ChatController(chatSessionService, chatDebounceService, passService);
         User user = User.create("nick", "user@example.com", "pw", Role.USER);
         ReflectionTestUtils.setField(user, "id", 1L);
         principal = new PrincipalDetails(user);
@@ -46,8 +46,8 @@ class ChatControllerTest {
     void setting_whenPassAvailable_shouldConsumePassBeforeSavingSession() {
         ApiResponse<ChatSessionCreateResponseDTO> response = chatController.setting(principal, requestDTO);
 
-        InOrder inOrder = inOrder(passUsecase, chatSessionService);
-        inOrder.verify(passUsecase).consumePass(1L);
+        InOrder inOrder = inOrder(passService, chatSessionService);
+        inOrder.verify(passService).consumePass(1L);
         inOrder.verify(chatSessionService).save(anyString(), eq(requestDTO));
         inOrder.verify(chatSessionService).registerSession(eq("user@example.com"), anyString());
         assertThat(response.getResult().sessionId()).isNotBlank();
@@ -55,7 +55,7 @@ class ChatControllerTest {
 
     @Test
     void setting_whenNoPassAvailable_shouldThrowAndNotSaveOrRegisterSession() {
-        doThrow(PassNotFoundException.EXCEPTION).when(passUsecase).consumePass(1L);
+        doThrow(PassNotFoundException.EXCEPTION).when(passService).consumePass(1L);
 
         assertThatThrownBy(() -> chatController.setting(principal, requestDTO))
                 .isInstanceOf(GeneralException.class);

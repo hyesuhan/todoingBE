@@ -6,6 +6,7 @@ import hongik.Todoing.domain.order.domain.pass.Pass;
 import hongik.Todoing.domain.order.domain.pass.PassStatus;
 import hongik.Todoing.domain.order.domain.pass.PassUsageLog;
 import hongik.Todoing.domain.order.domain.pass.ProductCode;
+import hongik.Todoing.domain.order.dto.order.response.KakaoReadyResponse;
 import hongik.Todoing.domain.order.dto.pass.response.GetPassInfoResponse;
 import hongik.Todoing.domain.order.dto.pass.response.PassRemainingResponse;
 import hongik.Todoing.domain.order.dto.pass.response.PassUsageLogResponse;
@@ -30,6 +31,20 @@ public class PassService {
     private final PassRepository passRepository;
     private final PassValidator passValidator;
     private final PassUsageLogRepository passUsageLogRepository;
+    private final OrderService orderService;
+
+    // 결제 준비
+    @Transactional
+    public KakaoReadyResponse requestOrderPass(Long userId) {
+        return orderService.readyOrder(userId, ProductCode.PASS_1, 1);
+    }
+
+    // 결제 완료 후 패스 발급
+    @Transactional
+    public void completeOrderAndIssuePass(Long userId, String tid, String pgToken) {
+        Order order = orderService.approveOrder(userId, tid, pgToken);
+        createPass(userId, order);
+    }
 
     // 패스 생성
     @Transactional

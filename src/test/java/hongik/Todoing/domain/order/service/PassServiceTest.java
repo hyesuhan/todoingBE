@@ -1,14 +1,17 @@
 package hongik.Todoing.domain.order.service;
 
+import hongik.Todoing.domain.order.domain.order.Order;
 import hongik.Todoing.domain.order.domain.pass.Pass;
 import hongik.Todoing.domain.order.domain.pass.PassStatus;
 import hongik.Todoing.domain.order.domain.pass.PassUsageLog;
 import hongik.Todoing.domain.order.domain.pass.ProductCode;
+import hongik.Todoing.domain.order.dto.order.response.KakaoReadyResponse;
 import hongik.Todoing.domain.order.dto.pass.response.PassRemainingResponse;
 import hongik.Todoing.domain.order.dto.pass.response.PassUsageLogResponse;
 import hongik.Todoing.domain.order.exception.passException.PassNotFoundException;
 import hongik.Todoing.domain.order.repository.PassRepository;
 import hongik.Todoing.domain.order.repository.PassUsageLogRepository;
+import hongik.Todoing.domain.order.validator.OrderValidator;
 import hongik.Todoing.domain.order.validator.PassValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,13 +33,40 @@ class PassServiceTest {
 
     @Mock private PassRepository passRepository;
     @Mock private PassUsageLogRepository passUsageLogRepository;
+    @Mock private OrderService orderService;
+    @Mock private OrderValidator orderValidator; // 테스트용 Order 객체를 만들기 위한 보조 목(PassService는 사용하지 않음)
     private PassValidator passValidator;
     private PassService passService;
 
     @BeforeEach
     void setUp() {
         passValidator = new PassValidator();
-        passService = new PassService(passRepository, passValidator, passUsageLogRepository);
+        passService = new PassService(passRepository, passValidator, passUsageLogRepository, orderService);
+    }
+
+    // PassUsecaseTest에서 이동: 결제 준비는 항상 PASS_1/수량 1로 orderService에 위임
+    @Test
+    void requestOrderPass_shouldAlwaysUsePass1AndQuantityOne() {
+        KakaoReadyResponse response = KakaoReadyResponse.builder().tid("tid-1").build();
+        when(orderService.readyOrder(1L, ProductCode.PASS_1, 1)).thenReturn(response);
+
+        KakaoReadyResponse result = passService.requestOrderPass(1L);
+
+        verify(orderService).readyOrder(1L, ProductCode.PASS_1, 1);
+        assertThat(result).isSameAs(response);
+    }
+
+    // PassUsecaseTest에서 이동: 주문 승인 후 패스 발급까지 이어지는지 검증
+    @Test
+    void completeOrderAndIssuePass_shouldApproveOrderThenCreatePass() {
+        Order order = Order.createReady(1L, ProductCode.PASS_1, 1, "P1261017ABCDE", orderValidator);
+        when(orderService.approveOrder(1L, "tid-1", "pg-1")).thenReturn(order);
+
+        passService.completeOrderAndIssuePass(1L, "tid-1", "pg-1");
+
+        verify(orderService).approveOrder(1L, "tid-1", "pg-1");
+        verify(passRepository).save(org.mockito.ArgumentMatchers.argThat(pass ->
+                pass.getUserId().equals(1L) && pass.getProductCode() == order.getItemCode()));
     }
 
     @Test
