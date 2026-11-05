@@ -4,6 +4,7 @@ import hongik.Todoing.domain.todo.label.domain.Label;
 import hongik.Todoing.domain.todo.label.repository.LabelRepository;
 import hongik.Todoing.domain.todo.converter.TodoConverter;
 import hongik.Todoing.domain.todo.domain.Todo;
+import hongik.Todoing.domain.todo.dto.request.TodoCreateRequestDTO;
 import hongik.Todoing.domain.todo.dto.request.TodoUpdateRequestDTO;
 import hongik.Todoing.domain.todo.dto.response.TodoResponseDTO;
 import hongik.Todoing.domain.todo.repository.TodoRepository;
@@ -26,8 +27,11 @@ public class SelfTodoService {
     private final TodoConverter todoConverter;
 
     @Transactional
-    public void createTodo(Long memberId, String content, LocalDate todoDate, Label label, boolean isAiNeeded) {
-        Todo todo = Todo.create(memberId, content, todoDate, label.getLabelId(), isAiNeeded);
+    public void createTodo(Long memberId, TodoCreateRequestDTO request) {
+        Label label = labelRepository.findByLabelName(request.labelType())
+                .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND));
+
+        Todo todo = Todo.create(memberId, request.content(), request.todoDate(), label.getLabelId(), request.isAiNeeded());
 
         todoRepository.save(todo);
     }

@@ -8,7 +8,6 @@ import hongik.Todoing.domain.todo.dto.request.ChatTodoCreateRequestDTO;
 import hongik.Todoing.domain.todo.dto.request.TodoCreateRequestDTO;
 import hongik.Todoing.domain.todo.dto.request.TodoUpdateRequestDTO;
 import hongik.Todoing.domain.todo.dto.response.TodoResponseDTO;
-import hongik.Todoing.domain.todo.facade.TodoUsecase;
 import hongik.Todoing.domain.todo.service.ChatTodoService;
 import hongik.Todoing.domain.todo.service.SelfTodoService;
 import hongik.Todoing.infrastructure.apiPayload.ApiResponse;
@@ -30,7 +29,6 @@ public class TodoController {
     private final SelfTodoService selfTodoService;
     private final ChatSessionService chatSessionService;
     private final ChatTodoService chatTodoService;
-    private final TodoUsecase todoUsecase;
 
     // 투두리스트 만들기 - self
     @Operation(summary = "투두리스트를 생성합니다.")
@@ -39,7 +37,7 @@ public class TodoController {
             @AuthenticationPrincipal PrincipalDetails principal,
             @RequestBody TodoCreateRequestDTO requestDTO
             ) {
-        todoUsecase.createTodo(principal.getUser().getId(), requestDTO);
+        selfTodoService.createTodo(principal.getUser().getId(), requestDTO);
         return ApiResponse.onSuccess(null);
     }
 
