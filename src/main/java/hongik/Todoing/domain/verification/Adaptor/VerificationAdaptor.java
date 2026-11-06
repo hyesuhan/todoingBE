@@ -1,6 +1,6 @@
 package hongik.Todoing.domain.verification.Adaptor;
 
-import hongik.Todoing.Common.annotation.Adaptor;
+import hongik.Todoing.common.annotation.Adaptor;
 import hongik.Todoing.domain.verification.domain.Verification;
 import hongik.Todoing.domain.verification.exception.VerificationErrorCode;
 import hongik.Todoing.domain.verification.exception.VerificationException;

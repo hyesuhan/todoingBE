@@ -1,6 +1,6 @@
 package hongik.Todoing.domain.order.adaptor;
 
-import hongik.Todoing.Common.annotation.Adaptor;
+import hongik.Todoing.common.annotation.Adaptor;
 import hongik.Todoing.domain.order.repository.OrderRepository;
 import hongik.Todoing.domain.order.domain.order.Order;
 import hongik.Todoing.domain.order.exception.orderException.OrderNotFoundException;

@@ -1,6 +1,6 @@
 package hongik.Todoing.domain.order.service;
 
-import hongik.Todoing.Common.annotation.DomainService;
+import hongik.Todoing.common.annotation.DomainService;
 import hongik.Todoing.domain.order.adaptor.PassAdaptor;
 import hongik.Todoing.domain.order.adaptor.PassUsageLogAdaptor;
 import hongik.Todoing.domain.order.domain.order.Order;

@@ -1,6 +1,6 @@
 package hongik.Todoing.domain.verification.validator;
 
-import hongik.Todoing.Common.annotation.Validator;
+import hongik.Todoing.common.annotation.Validator;
 import hongik.Todoing.domain.user.domain.User;
 import hongik.Todoing.domain.order.adaptor.OrderAdaptor;
 import hongik.Todoing.domain.order.adaptor.PassAdaptor;

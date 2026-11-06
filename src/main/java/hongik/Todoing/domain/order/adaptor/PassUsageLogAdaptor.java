@@ -1,6 +1,6 @@
 package hongik.Todoing.domain.order.adaptor;
 
-import hongik.Todoing.Common.annotation.Adaptor;
+import hongik.Todoing.common.annotation.Adaptor;
 import hongik.Todoing.domain.order.domain.pass.PassUsageLog;
 import hongik.Todoing.domain.order.repository.PassUsageLogRepository;
 import lombok.RequiredArgsConstructor;

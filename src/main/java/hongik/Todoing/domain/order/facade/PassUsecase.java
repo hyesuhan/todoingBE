@@ -1,6 +1,6 @@
 package hongik.Todoing.domain.order.facade;
 
-import hongik.Todoing.Common.annotation.UseCase;
+import hongik.Todoing.common.annotation.UseCase;
 import hongik.Todoing.domain.order.domain.order.Order;
 import hongik.Todoing.domain.order.domain.pass.ProductCode;
 import hongik.Todoing.domain.order.dto.order.response.KakaoReadyResponse;

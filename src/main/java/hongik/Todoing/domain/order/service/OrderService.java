@@ -1,6 +1,6 @@
 package hongik.Todoing.domain.order.service;
 
-import hongik.Todoing.Common.annotation.DomainService;
+import hongik.Todoing.common.annotation.DomainService;
 import hongik.Todoing.domain.order.adaptor.KakaoPayAdaptor;
 import hongik.Todoing.domain.order.adaptor.OrderAdaptor;
 import hongik.Todoing.domain.order.adaptor.OrderUuidGenerator;

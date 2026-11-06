@@ -1,6 +1,6 @@
 package hongik.Todoing.domain.order.adaptor;
 
-import hongik.Todoing.Common.annotation.Adaptor;
+import hongik.Todoing.common.annotation.Adaptor;
 import hongik.Todoing.domain.order.domain.pass.Pass;
 import hongik.Todoing.domain.order.domain.pass.PassStatus;
 import hongik.Todoing.domain.order.domain.pass.ProductCode;
