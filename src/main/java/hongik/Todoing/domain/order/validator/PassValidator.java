@@ -1,7 +1,6 @@
 package hongik.Todoing.domain.order.validator;
 
 import hongik.Todoing.common.annotation.Validator;
-import hongik.Todoing.domain.order.adaptor.PassAdaptor;
 import hongik.Todoing.domain.order.domain.pass.Pass;
 import hongik.Todoing.domain.order.domain.pass.PassStatus;
 import hongik.Todoing.domain.order.exception.passException.PassAlreadyUsedException;
@@ -14,8 +13,6 @@ import java.util.Objects;
 @Validator
 @RequiredArgsConstructor
 public class PassValidator {
-
-    private final PassAdaptor passAdaptor;
 
     public void validCreate(Pass pass) {
 

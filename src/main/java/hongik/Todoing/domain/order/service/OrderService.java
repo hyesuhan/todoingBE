@@ -2,13 +2,14 @@ package hongik.Todoing.domain.order.service;
 
 import hongik.Todoing.common.annotation.DomainService;
 import hongik.Todoing.domain.order.adaptor.KakaoPayAdaptor;
-import hongik.Todoing.domain.order.adaptor.OrderAdaptor;
 import hongik.Todoing.domain.order.adaptor.OrderUuidGenerator;
 import hongik.Todoing.domain.order.domain.order.Order;
 import hongik.Todoing.domain.order.domain.pass.ProductCode;
 import hongik.Todoing.domain.order.dto.order.request.KakaoReadyRequest;
 import hongik.Todoing.domain.order.dto.order.response.KakaoReadyResponse;
 import hongik.Todoing.domain.order.dto.order.response.OrderSummaryResponse;
+import hongik.Todoing.domain.order.exception.orderException.OrderNotFoundException;
+import hongik.Todoing.domain.order.repository.OrderRepository;
 import hongik.Todoing.domain.order.validator.OrderValidator;
 import hongik.Todoing.infrastructure.apiPayload.code.status.ErrorStatus;
 import hongik.Todoing.infrastructure.apiPayload.exception.GeneralException;
@@ -24,7 +25,7 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class OrderService {
 
-    private final OrderAdaptor orderAdaptor;
+    private final OrderRepository orderRepository;
     private final OrderValidator orderValidator;
     private final OrderUuidGenerator uuidGenerator;
     private final KakaoPayAdaptor kakaoPayAdaptor;
@@ -50,7 +51,8 @@ public class OrderService {
 
 
         // 주문에 결제 정보 저장
-        orderAdaptor.saveWithTid(order, response.getTid());
+        order.updateTidAfterReady(response.getTid());
+        orderRepository.save(order);
 
         // 주문을 저장합니다.
         return response;
@@ -60,7 +62,8 @@ public class OrderService {
     @Transactional
     public Order approveOrder(Long userId, String tid, String pgToken) {
         // 주문을 찾습니다.
-        Order order = orderAdaptor.findByTid(tid);
+        Order order = orderRepository.findByTid(tid)
+                .orElseThrow(() -> OrderNotFoundException.EXCEPTION);
 
         // 본인 주문인지 확인합니다.
         if (!order.getUserId().equals(userId)) {
@@ -78,25 +81,25 @@ public class OrderService {
     public void cancelOrder(Order order) {
         LocalDateTime now = LocalDateTime.now();
         order.cancelBeforeApprove(now);
-        orderAdaptor.save(order);
+        orderRepository.save(order);
     }
 
     // 주문 실패
     public void failOrder(Order order) {
         LocalDateTime now = LocalDateTime.now();
         order.failBeforeApprove(now);
-        orderAdaptor.save(order);
+        orderRepository.save(order);
     }
 
     // 주문 승인 후 환불
     public void refundOrder(Order order) {
         LocalDateTime now = LocalDateTime.now();
         order.refund(now);
-        orderAdaptor.save(order);
+        orderRepository.save(order);
     }
 
     public List<OrderSummaryResponse> getMyOrders(Long userId) {
-        return orderAdaptor.findByUserId(userId).stream()
+        return orderRepository.findAllByUserId(userId).stream()
                 .sorted(Comparator.comparing(Order::getCreatedAt).reversed())
                 .map(order -> new OrderSummaryResponse(
                         order.getId(),
