@@ -1,4 +1,4 @@
-package hongik.Todoing.Common.annotation;
+package hongik.Todoing.common.annotation;
 
 import org.springframework.core.annotation.AliasFor;
 import org.springframework.stereotype.Component;
@@ -9,7 +9,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Component
-public @interface Adaptor {
+public @interface Mapper {
     @AliasFor(annotation = Component.class)
     String value() default "";
 }

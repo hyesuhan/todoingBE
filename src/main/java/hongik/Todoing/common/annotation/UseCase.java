@@ -1,4 +1,4 @@
-package hongik.Todoing.Common.annotation;
+package hongik.Todoing.common.annotation;
 
 import org.springframework.core.annotation.AliasFor;
 import org.springframework.stereotype.Component;
